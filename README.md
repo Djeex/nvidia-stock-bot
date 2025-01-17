@@ -2,8 +2,8 @@
 Par KevOut & Djeex
 
 Ce robot :
-- Appelle régulièrement l'api des stocks français de nvidia (par défaut toutes les 60s)
-- Vérifie si RTX 5090, RTX 5080; RTX 5070ti et RTX 5070 sont en stock
+- Appelle régulièrement l'api des stocks français de nvidia FE (par défaut toutes les 60s)
+- Vérifie si RTX 5090, RTX 5080, RTX 5070ti et RTX 5070 sont en stock
 - Si du stock est trouvé  envoie une notification discord via le webhook paramétré
 
 ## Installation avec le dépot

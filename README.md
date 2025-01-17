@@ -13,6 +13,7 @@ Ce robot :
 - Docker
 
 ### Cloner et paramétrer
+
 Clonez le repo :
 ```sh
 git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git

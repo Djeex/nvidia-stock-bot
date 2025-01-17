@@ -35,7 +35,7 @@ docker compose up -d
 docker logs -f nvidia-stock-bot
 ```
 
-## Si vous souhitez compiler vous même
+## Si vous souhaitez compiler vous même
 
 Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
 ```sh

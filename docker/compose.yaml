@@ -10,4 +10,4 @@ services:
       - DISCORD_WEBHOOK_URL=${DS_HOOK}
       - REFRESH_TIME=${FREQ}
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
-    command: python bot_nvidia.py # Lance le script Python
+    command: python nvidia-stock-bot.py # Lance le script Python

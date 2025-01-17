@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  nvidia-stock-bot:
+    image: docker.io/library/nvidia-stock-bot
+    container_name: nvidia-stock-bot
+    restart: always # Le conteneur redémarrera automatiquement en cas d'échec
+    env_file:
+      - .env
+    environment:
+      - DISCORD_WEBHOOK_URL=${DS_HOOK}
+      - REFRESH_TIME=${FREQ}
+      - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
+    command: python bot_nvidia.py # Lance le script Python

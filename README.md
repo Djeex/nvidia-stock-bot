@@ -4,7 +4,7 @@ Par KevOut & Djeex
 Ce robot :
 - Appelle régulièrement l'api des stocks français de nvidia (par défaut toutes les 60s)
 - Vérifie si RTX 5090, RTX 5080; RTX 5070ti et RTX 5070 sont en stock
-- Si du stock est trouvé  envoie une notification discord via le webhook paramétré
+- Si du stock est trouvé, envoie une notification discord via le webhook paramétré
 
 ## Installation
 
@@ -13,6 +13,7 @@ Ce robot :
 - Docker
 
 ### Cloner et paramétrer
+
 Clonez le repo :
 ```sh
 git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git

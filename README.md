@@ -1,6 +1,9 @@
 # Nvidia Stock Bot
 Par KevOut & Djeex
 
+[![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96)
+
+
 Ce robot :
 - Appelle régulièrement l'api des stocks français de nvidia FE (par défaut toutes les 60s)
 - Vérifie si RTX 5090, RTX 5080, RTX 5070ti et RTX 5070 sont en stock

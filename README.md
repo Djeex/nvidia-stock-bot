@@ -9,6 +9,8 @@ Ce robot :
 - Vérifie si RTX 5090, RTX 5080, RTX 5070ti et RTX 5070 sont en stock
 - Si du stock est trouvé, envoie une notification discord via le webhook paramétré
 
+<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/docs/files/assets/img/nvbot.png" align="center" width="700">
+
 ## Installation avec le dépot
 
 ### Pré-requis

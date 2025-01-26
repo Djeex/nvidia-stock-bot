@@ -47,8 +47,8 @@ Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
 docker build -t nvidia-stock-bot .
 ```
 
-## Installation sans Git avec docker compose
-Si vous ne souhaitez pas utiliser git pour cloner tout le repo, une image docker à jour est mise à disposition dans ce registry.
+## Installation sans le dépot avec docker compose
+Si vous ne souhaitez pas utiliser git pour cloner tout le dépot, une image docker à jour est mise à disposition dans ce registry.
 
 ### Pré-requis
 - Docker

@@ -46,3 +46,25 @@ Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
 ```sh
 docker build -t nvidia-stock-bot .
 ```
+
+## Installation sans Git avec docker compose
+Si vous ne souhaitez pas utiliser git pour cloner tout le repo, une image docker à jour est mise à disposition dans ce registry.
+
+### Pré-requis
+- Docker
+
+### Configuration
+
+```yaml
+version: "3.8"
+services:
+  nvidia-stock-bot:
+    image: git.djeex.fr/djeex/nvidia-stock-bot:1
+    container_name: nvidia-stock-bot
+    restart: always # Le conteneur redémarrera automatiquement en cas d'échec
+    environment:
+      - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
+      - REFRESH_TIME= # Durée de rafraichissement du script en secondes
+      - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
+    command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
+```

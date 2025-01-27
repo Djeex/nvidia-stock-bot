@@ -59,7 +59,7 @@ Si vous ne souhaitez pas utiliser git pour cloner tout le dépot, une image dock
 version: "3.8"
 services:
   nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:1
+    image: git.djeex.fr/djeex/nvidia-stock-bot:2
     container_name: nvidia-stock-bot
     restart: always # Le conteneur redémarrera automatiquement en cas d'échec
     environment:

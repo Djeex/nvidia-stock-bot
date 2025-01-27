@@ -116,8 +116,8 @@ def check_rtx_50_founders():
                     real_gpu_name = product.get("gpu", "Inconnu")
                     product_link = product.get("internalLink", "(pas de lien trouvé)")
                     msg = (
-                        f"@everyone **Disponibilité repérée !**\n"
-                        f"Carte RTX Founders Edition détectée : `{real_gpu_name}`\n"
+                        f"@everyone **En stock !**\n"
+                        f"Carte : `{real_gpu_name}`\n"
                         f"Lien : {product_link}"
                     )
                     send_discord_notification(msg)

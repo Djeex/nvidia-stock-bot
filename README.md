@@ -13,9 +13,9 @@ Ce robot :
 
 
 Trois modes d'installation :
-- [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot#installation-avec-le-d%C3%A9pot)
-- [Sans le dépot Git et avec notre image docker fournie](https://git.djeex.fr/Djeex/nvidia-stock-bot#installation-sans-le-d%C3%A9pot-avec-docker-compose)
-- [Avec python (développeurs)](https://git.djeex.fr/Djeex/nvidia-stock-bot#installation-sans-le-d%C3%A9pot-avec-docker-compose)
+- [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-avec-le-d%C3%A9pot)
+- [Sans le dépot Git et avec notre image docker fournie](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-sans-le-d%C3%A9pot-avec-docker-compose)
+- [Avec python (développeurs)](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-sans-le-d%C3%A9pot-avec-docker-compose)
 
 ## Installation avec le dépot
 

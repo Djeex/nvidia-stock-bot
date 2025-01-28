@@ -30,7 +30,6 @@ Vous trouverez-ci dessous les instructions pour installer le dépot, compiler l'
 Clonez le repo :
 ```sh
 git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
-
 ```
 
 Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
@@ -85,25 +84,25 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
 ### Pré-requis
 
 - Python 3.11 ou plus
-- requests
-  ```sh
-  pip install requests
-  ```
+- requests : `pip install requests`
 
 ### Configuration
 
 - Créez un environnement virtuel (exemple : `python3 -m venv nom_de_l_environnement` )
 - Créez un dossier et aller dedans
 - Téléchargez le script python :
+  
   ```sh
   curl -o nvidia-stock-bot.py -# https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/nvidia-stock-bot.py
   ```
 - Exportez les variables d'environnement avec votre webhook discord et le temps de rafraichissement en secondes, par exemple :
+  
   ```sh
   export DISCORD_WEBHOOK_URL="https://votre_url_discord"
   export REFRESH_TIME="60"
   ```
 - Lancez le script
+  
   ```sh
   python nvidia-stock-bot.py
   ```

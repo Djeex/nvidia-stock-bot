@@ -27,7 +27,7 @@ print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
 # L’URL de l’API (exemple)
-API_URL = "https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&manufacturer=nvidia"
+API_URL = "https://api.nvidia.partners/edge/product/search?page=1&limit=9&locale=fr-fr&category=GPU&gpu=RTX%205080,RTX%205090"
 
 # GPUs à surveiller
 GPU_TARGETS = ["RTX 5070 Ti", "RTX 5070", "RTX 5080", "RTX 5090"]
@@ -75,10 +75,6 @@ def send_discord_notification(message: str):
 def check_rtx_50_founders():
     """Vérifie l'état de stock des GPU Founders Edition et notifie Discord si un GPU repasse en stock."""
     try:
-        session.get("https://api.nvidia.partners/edge/product/search?page=1&limit=1",
-                    headers=HEADERS,
-                    timeout=10)
-
         response = session.get(API_URL, headers=HEADERS, timeout=10)
         logging.info(f"Réponse de l'API : {response.status_code}")
         response.raise_for_status()

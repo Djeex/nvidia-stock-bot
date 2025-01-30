@@ -67,7 +67,7 @@ Vous trouverez-ci dessous les instructions pour configurer le conteneur avec not
 version: "3.8"
 services:
   nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:5
+    image: git.djeex.fr/djeex/nvidia-stock-bot:6
     container_name: nvidia-stock-bot
     restart: always # Le conteneur redémarrera automatiquement en cas d'échec
     environment:

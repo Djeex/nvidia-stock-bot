@@ -110,11 +110,12 @@ def check_rtx_50_founders():
                 product_name = product.get("gpu", "").upper()
                 if product_name == gpu_upper:
                     real_gpu_name = product.get("gpu", "Inconnu")
-                    product_link = product.get("internalLink", "(pas de lien trouvé)")
+                    product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
                     msg = (
                         f"@everyone **En stock !**\n"
-                        f"Carte : `{real_gpu_name}`\n"
-                        f"Lien : {product_link}"
+                        f"Carte : **{real_gpu_name}**\n "
+                        f"Lien :point_right: {product_link}\n"
+                        f"________\n"
                     )
                     send_discord_notification(msg)
 

@@ -98,7 +98,7 @@ def check_rtx_50_founders():
         gpu_name = p.get("gpu", "").upper()
         is_founder = p.get("isFounderEdition") is True
         is_nvidia = (p.get("manufacturer") == "NVIDIA")
-        is_buy_now = (p.get("prdStatus") == "buy_now" or p.get("productAvailable") is True)
+        is_buy_now = (p.get("prdStatus") != "out_of_stock")
 
         if is_founder and is_nvidia and is_buy_now:
             if any(target.upper() in gpu_name for target in GPU_TARGETS):

@@ -51,26 +51,37 @@ HEADERS = {
     "Sec-GPC": "1",
 }
 
-# Dictionnaire stockant l'état de stock pour chaque GPU.
+# Dictionnaire stockant l'état de stock
 stock_status = {gpu.upper(): False for gpu in GPU_TARGETS}
 
 session = requests.Session()
 
-
-def send_discord_notification(message: str):
-    """Envoie un message sur un salon Discord via un webhook."""
-    payload = {
-        "content": message
+def send_discord_notification(gpu_name: str, product_link: str):
+    """Envoie une notification Discord avec un embed via un webhook."""
+    embed = {
+        "title": f"🚀 {gpu_name} en stock !",
+        "description": f":point_right: **[Achetez ici](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080)**",
+        "color": 3066993,  # Couleur verte
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+        #"thumbnail": {
+        #    "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/graphic-cards/50-series/rtx-5090/geforce-rtx-5090-learn-more-og-1200x630.jpg"
+        #}
     }
+
+    payload = {
+        "content": "@everyone",
+        "username": "Nvidia Bot",
+        "embeds": [embed]
+    }
+
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
-            logging.info("Notification envoyée sur Discord.")
+            logging.info("✅ Embed envoyé sur Discord.")
         else:
-            logging.error(f"Échec de l'envoi du webhook : {response.status_code} - {response.text}")
+            logging.error(f"❌ Erreur d'envoi du webhook : {response.status_code} - {response.text}")
     except Exception as e:
-        logging.error(f"Erreur lors de l'appel au webhook Discord : {e}")
-
+        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
 def check_rtx_50_founders():
     """Vérifie l'état de stock des GPU Founders Edition et notifie Discord si un GPU repasse en stock."""
@@ -79,12 +90,8 @@ def check_rtx_50_founders():
         logging.info(f"Réponse de l'API : {response.status_code}")
         response.raise_for_status()
         data = response.json()
-
-    except requests.exceptions.ReadTimeout:
-        logging.info("Time-out lors de l'appel API.")
-        return
-    except Exception as e:
-        logging.info(f"Erreur lors de l'appel API : {e}")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Erreur lors de l'appel API : {e}")
         return
 
     products = data.get("searchedProducts", {}).get("productDetails", [])
@@ -92,11 +99,11 @@ def check_rtx_50_founders():
 
     for p in products:
         gpu_name = p.get("gpu", "").upper()
-        is_founder = p.get("isFounderEdition") is True
-        is_nvidia = (p.get("manufacturer") == "NVIDIA")
+        #is_founder = p.get("isFounderEdition") is True
+        #is_nvidia = (p.get("manufacturer") == "NVIDIA")
         is_buy_now = (p.get("prdStatus") != "out_of_stock")
 
-        if is_founder and is_nvidia and is_buy_now:
+        if is_buy_now:
             if any(target.upper() in gpu_name for target in GPU_TARGETS):
                 found_in_stock.add(gpu_name)
 
@@ -111,13 +118,7 @@ def check_rtx_50_founders():
                 if product_name == gpu_upper:
                     real_gpu_name = product.get("gpu", "Inconnu")
                     product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
-                    msg = (
-                        f"@everyone **En stock !**\n"
-                        f"Carte : **{real_gpu_name}**\n "
-                        f"Lien :point_right: {product_link}\n"
-                        f"________\n"
-                    )
-                    send_discord_notification(msg)
+                    send_discord_notification(real_gpu_name, product_link)
 
             stock_status[gpu_upper] = True
             print(f"{gpu} est maintenant en stock!")
@@ -126,10 +127,9 @@ def check_rtx_50_founders():
             logging.info(f"{gpu} n'est plus en stock.")
             stock_status[gpu_upper] = False
             print(f"{gpu} est hors stock !")
-
+        
         elif not currently_in_stock:
             print(f"{gpu} est actuellement hors stock.")
-
 
 if __name__ == "__main__":
     while True:

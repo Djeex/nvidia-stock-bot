@@ -27,7 +27,7 @@ print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
 # L’URL de l’API (exemple)
-API_URL = "https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr"
+API_URL = "https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&manufacturer=nvidia"
 
 # GPUs à surveiller
 GPU_TARGETS = ["RTX 5070 Ti", "RTX 5070", "RTX 5080", "RTX 5090"]
@@ -97,10 +97,10 @@ def check_rtx_50_founders():
     for p in products:
         gpu_name = p.get("gpu", "").upper()
         is_founder = p.get("isFounderEdition") is True
-        #is_nvidia = (p.get("manufacturer") == "NVIDIA")
+        is_nvidia = (p.get("manufacturer") == "NVIDIA")
         is_buy_now = (p.get("prdStatus") == "buy_now" or p.get("productAvailable") is True)
 
-        if is_founder and is_buy_now:
+        if is_founder and is_nvidia and is_buy_now:
             if any(target.upper() in gpu_name for target in GPU_TARGETS):
                 found_in_stock.add(gpu_name)
 

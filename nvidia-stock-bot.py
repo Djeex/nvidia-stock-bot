@@ -60,7 +60,7 @@ def send_discord_notification(gpu_name: str, product_link: str):
     """Envoie une notification Discord avec un embed via un webhook."""
     embed = {
         "title": f"🚀 {gpu_name} en stock !",
-        "description": f":point_right: **[Achetez ici](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080)**",
+        "description": f":point_right: **[Achetez ici](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080&manufacturer=NVIDIA)**",
         "color": 3066993,  # Couleur verte
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
         #"thumbnail": {

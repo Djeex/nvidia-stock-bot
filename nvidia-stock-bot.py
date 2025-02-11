@@ -27,10 +27,10 @@ print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
 # L’URL de l’API (exemple)
-API_URL = "https://api.nvidia.partners/edge/product/search?page=1&limit=9&locale=fr-fr&category=GPU&gpu=RTX%205080,RTX%205090"
+API_URL = "https://api.store.nvidia.com/partner/v1/feinventory?status=1&skus=NVGFT590&locale=FR"
 
 # GPUs à surveiller
-GPU_TARGETS = ["RTX 5070 Ti", "RTX 5070", "RTX 5080", "RTX 5090"]
+GPU_TARGETS = ["NVGFT590"]
 
 # Entêtes HTTP pour la requête
 HEADERS = {
@@ -94,16 +94,14 @@ def check_rtx_50_founders():
         logging.error(f"Erreur lors de l'appel API : {e}")
         return
 
-    products = data.get("searchedProducts", {}).get("productDetails", [])
+    products = data.get("listMap", [])
     found_in_stock = set()
 
     for p in products:
-        gpu_name = p.get("gpu", "").upper()
-        is_founder = p.get("isFounderEdition") is True
-        is_nvidia = (p.get("manufacturer") == "NVIDIA")
-        is_buy_now = (p.get("prdStatus") != "out_of_stock")
+        gpu_name = p.get("sku", "").upper()
+        is_active = p.get("is_active") == "true"
 
-        if is_founder and is_nvidia and is_buy_now:
+        if is_active:
             if any(target.upper() in gpu_name for target in GPU_TARGETS):
                 found_in_stock.add(gpu_name)
 
@@ -114,9 +112,9 @@ def check_rtx_50_founders():
 
         if currently_in_stock and not previously_in_stock:
             for product in products:
-                product_name = product.get("gpu", "").upper()
+                product_name = product.get("sku", "").upper()
                 if product_name == gpu_upper:
-                    real_gpu_name = product.get("gpu", "Inconnu")
+                    real_gpu_name = product.get("sku", "Inconnu")
                     product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
                     send_discord_notification(real_gpu_name, product_link)
 

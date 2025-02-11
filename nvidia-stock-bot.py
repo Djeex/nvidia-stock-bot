@@ -98,7 +98,7 @@ def check_rtx_50_founders():
     found_in_stock = set()
 
     for p in products:
-        gpu_name = p.get("sku", "").upper()
+        gpu_name = p.get("fe_sku", "").upper()
         is_active = p.get("is_active") == "true"
 
         if is_active:
@@ -112,9 +112,9 @@ def check_rtx_50_founders():
 
         if currently_in_stock and not previously_in_stock:
             for product in products:
-                product_name = product.get("sku", "").upper()
+                product_name = product.get("fe_sku", "").upper()
                 if product_name == gpu_upper:
-                    real_gpu_name = product.get("sku", "Inconnu")
+                    real_gpu_name = product.get("fe_sku", "Inconnu")
                     product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
                     send_discord_notification(real_gpu_name, product_link)
 

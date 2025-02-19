@@ -5,12 +5,10 @@ Par KevOut & Djeex
 
 
 Ce robot :
-- Appelle régulièrement l'api des stocks français de nvidia FE (par défaut toutes les 60s)
-- Vérifie si RTX 5090, RTX 5080, RTX 5070ti et RTX 5070 sont en stock
+- Appelle l'API de Nvidia listant le produit (par défaut toutes les 60s)
+- Récupère le SKU du produit concerné
+- Appelle le stock lié à ce SKU
 - Si du stock est trouvé, envoie une notification discord via le webhook paramétré
-
-<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot.png" align="center">
-
 
 Trois modes d'installation :
 - [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-avec-le-d%C3%A9pot)
@@ -73,8 +71,8 @@ services:
     environment:
       - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
       - REFRESH_TIME= # Durée de rafraichissement du script en secondes
-      - GPU_TARGETS= #SKU
-      - API_URL= #URL de l'API
+      - API_URL_SKU= # API listant le produit par exemple : https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
+      - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple : https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
 ```

@@ -14,9 +14,8 @@ logging.info("Démarrage du script")
 # Récupération des variables d'environnement
 try:
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
-    API_URL = os.environ['API_URL']
-    GPU_TARGETS = os.environ['GPU_TARGETS'].split(",")  # Séparer en liste
-    GPU_TARGETS = [gpu.strip() for gpu in GPU_TARGETS]  # Nettoyer les espaces
+    API_URL_SKU = os.environ['API_URL_SKU']
+    API_URL_STOCK = os.environ['API_URL_STOCK']
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
@@ -27,15 +26,11 @@ except ValueError:
 
 # Afficher les valeurs des variables d'environnement
 print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
-print(f"url de l'API: {API_URL}")
-print(f"GPU recherché: {GPU_TARGETS}")
+print(f"url de l'API qui liste les SKU: {API_URL_SKU}")
+print(f"url de l'API de stock: {API_URL_STOCK}")
+#print(f"GPU recherché: {GPU_TARGETS}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
-# L’URL de l’API (exemple)
-#API_URL = "https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=5090LDLCFE"
-
-# GPUs à surveiller
-#GPU_TARGETS = ["5090LDLCFE_FR"]
 
 # Entêtes HTTP pour la requête
 HEADERS = {
@@ -55,9 +50,6 @@ HEADERS = {
     "Upgrade-Insecure-Requests": "1",
     "Sec-GPC": "1",
 }
-
-# Dictionnaire stockant l'état de stock
-stock_status = {gpu.upper(): False for gpu in GPU_TARGETS}
 
 session = requests.Session()
 
@@ -89,7 +81,31 @@ def send_discord_notification(gpu_name: str, product_link: str):
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
 def check_rtx_50_founders():
-    """Vérifie l'état de stock des GPU Founders Edition et notifie Discord si un GPU repasse en stock."""
+    """Liste les SKU à rechercher"""
+    try:
+        response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
+        logging.info(f"Réponse de l'API : {response.status_code}")
+        response.raise_for_status()
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Erreur lors de l'appel API : {e}")
+        return
+
+    product_details = data['searchedProducts']['productDetails'][0]
+    product_sku = product_details['productSKU']
+    product_upc = product_details.get('productUPC', "")
+
+    if not isinstance(product_upc, list):
+        product_upc = [product_upc]
+    
+    # Dictionnaire stockant l'état de stock
+    stock_status = {gpu.upper(): False for gpu in product_upc}
+    
+    """Cherche les stock du sku concerné"""
+    API_URL = API_URL_STOCK + product_sku
+    
+    print(f"url de l'API de stock: {API_URL}")
+    
     try:
         response = session.get(API_URL, headers=HEADERS, timeout=10)
         logging.info(f"Réponse de l'API : {response.status_code}")
@@ -107,10 +123,10 @@ def check_rtx_50_founders():
         is_active = p.get("is_active") == "true"
 
         if is_active:
-            if any(target.upper() in gpu_name for target in GPU_TARGETS):
+            if any(target.upper() in gpu_name for target in product_upc):
                 found_in_stock.add(gpu_name)
 
-    for gpu in GPU_TARGETS:
+    for gpu in product_upc:
         gpu_upper = gpu.upper()
         currently_in_stock = (gpu_upper in found_in_stock)
         previously_in_stock = stock_status[gpu_upper]

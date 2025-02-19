@@ -9,7 +9,7 @@ services:
     environment:
       - DISCORD_WEBHOOK_URL=${DS_HOOK}
       - REFRESH_TIME=${FREQ}
-      - GPU_TARGETS=${GPU} #SKU
-      - API_URL=${URL} #URL de l'API
+      - API_URL_SKU=${API_URL_SKU}
+      - API_URL_STOCK=${API_URL_STOCK}
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python

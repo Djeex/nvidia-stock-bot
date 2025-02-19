@@ -73,6 +73,8 @@ services:
     environment:
       - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
       - REFRESH_TIME= # Durée de rafraichissement du script en secondes
+      - GPU_TARGETS= #SKU
+      - API_URL= #URL de l'API
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
 ```

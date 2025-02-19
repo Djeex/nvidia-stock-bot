@@ -14,6 +14,8 @@ logging.info("Démarrage du script")
 # Récupération des variables d'environnement
 try:
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
+    API_URL = os.environ['API_URL']
+    GPU_TARGETS = os.environ['GPU_TARGETS']
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
@@ -27,10 +29,10 @@ print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
 # L’URL de l’API (exemple)
-API_URL = "https://api.store.nvidia.com/partner/v1/feinventory?status=1&skus=NVGFT590&locale=FR"
+#API_URL = "https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=5090LDLCFE"
 
 # GPUs à surveiller
-GPU_TARGETS = ["NVGFT590"]
+#GPU_TARGETS = ["5090LDLCFE_FR"]
 
 # Entêtes HTTP pour la requête
 HEADERS = {

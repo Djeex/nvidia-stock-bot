@@ -71,8 +71,8 @@ services:
     environment:
       - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
       - REFRESH_TIME= # Durée de rafraichissement du script en secondes
-      - API_URL_SKU= # API listant le produit par exemple : https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
-      - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple : https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
+      - API_URL_SKU= # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
+      - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
 ```

@@ -15,7 +15,8 @@ logging.info("Démarrage du script")
 try:
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
     API_URL = os.environ['API_URL']
-    GPU_TARGETS = os.environ['GPU_TARGETS']
+    GPU_TARGETS = os.environ['GPU_TARGETS'].split(",")  # Séparer en liste
+    GPU_TARGETS = [gpu.strip() for gpu in GPU_TARGETS]  # Nettoyer les espaces
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
@@ -26,6 +27,8 @@ except ValueError:
 
 # Afficher les valeurs des variables d'environnement
 print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
+print(f"url de l'API: {API_URL}")
+print(f"GPU recherché: {GPU_TARGETS}")
 print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
 
 # L’URL de l’API (exemple)

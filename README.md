@@ -12,6 +12,8 @@ Ce robot :
 - Si le produit était déjà en stock, il n'envoie plus de notification
 - Si le produit était en stock mais ne l'est plus, envoie une notification discord signifiant la fin du stock
 
+<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot.png" align="center">
+
 Trois modes d'installation :
 - [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-avec-le-d%C3%A9pot)
 - [Sans le dépot Git et avec notre image docker fournie](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-sans-le-d%C3%A9pot-avec-docker-compose)

@@ -60,18 +60,35 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 global_stock_status = {}
 
 # Notifications Discord
-def send_discord_notification(gpu_name: str, product_link: str):
+def send_discord_notification(gpu_name: str, product_link: str, products_price: str):
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification Discord: {gpu_name} disponible !")
         return
     
     embed = {
-        "title": f"🚀 {gpu_name} en stock !",
-        "description": f":point_right: **[Achetez ici](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080&manufacturer=NVIDIA)**",
+        "title": f"🚀 {gpu_name} EN STOCK !",
         "color": 3066993,
+        "thumbnail": {
+            "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
+        },
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+        "author": {
+            "name": "Nvidia Founder Editions"
+        },
+
+        "fields": [
+            {
+            "name": "Prix",
+            "value": f"`{products_price} €`",
+            "inline": True
+            }
+        ],
+        "description": "**:point_right: [Acheter maintenant](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080)**",
+        "footer": {
+            "text": "Par KevOut & Djeex"
+        }
     }
-    payload = {"content": "@everyone", "username": "Nvidia Bot", "embeds": [embed]}
+    payload = {"content": "@everyone", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg", "embeds": [embed]}
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
@@ -81,7 +98,7 @@ def send_discord_notification(gpu_name: str, product_link: str):
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
-def send_out_of_stock_notification(gpu_name: str, product_link: str):
+def send_out_of_stock_notification(gpu_name: str, product_link: str, products_price: str):
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification Discord: {gpu_name} hors stock !")
         return
@@ -91,8 +108,18 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str):
         "description": f":disappointed_relieved:",
         "color": 15158332,  # Rouge pour hors stock
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+        "thumbnail": {
+            "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
+        },
+        "url": "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080",
+        "author": {
+            "name": "Nvidia Founder Editions"
+        },
+        "footer": {
+            "text": "Par KevOut & Djeex"
+        }
     }
-    payload = {"content": "@everyone", "username": "Nvidia Bot", "embeds": [embed]}
+    payload = {"username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg", "embeds": [embed]}
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
@@ -136,6 +163,18 @@ def check_rtx_50_founders():
         return
 
     products = data.get("listMap", [])
+    products_price = 'Prix non disponible'  # Valeur par défaut
+
+    # Vérification de la liste des produits et récupération du prix
+    if isinstance(products, list) and len(products) > 0:
+        for product in products:
+            price = product.get("price", 'Prix non disponible')
+            if price != 'Prix non disponible':
+                products_price = price  # Utiliser le prix trouvé
+                break  # Sortir dès qu'on trouve un prix
+    else:
+        logging.error("La liste des produits est vide ou mal formée.")
+
     found_in_stock = set()
 
     # Recherche du statut et notifications selon le statut
@@ -152,12 +191,12 @@ def check_rtx_50_founders():
         
         if currently_in_stock and not previously_in_stock:
             product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
-            send_discord_notification(gpu_upper, product_link)
+            send_discord_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = True
             logging.info(f"{gpu} est maintenant en stock!")
         elif not currently_in_stock and previously_in_stock:
             product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
-            send_out_of_stock_notification(gpu_upper, product_link)
+            send_out_of_stock_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = False
             logging.info(f"{gpu} n'est plus en stock.")
 

@@ -59,6 +59,7 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 # Stockage de l'état des stocks
 global_stock_status = {}
 
+# Notifications Discord
 def send_discord_notification(gpu_name: str, product_link: str):
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification Discord: {gpu_name} disponible !")
@@ -101,8 +102,11 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str):
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
+# Recherche du stock
 def check_rtx_50_founders():
     global global_stock_status
+
+    # Appel vers l'API produit pour récupérer le sku et l'upc
     try:
         response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
         logging.info(f"Réponse de l'API : {response.status_code}")
@@ -118,6 +122,7 @@ def check_rtx_50_founders():
     if not isinstance(product_upc, list):
         product_upc = [product_upc]
     
+    # Construction de l'url de l'API de stock et appel pour vérifier le statut
     API_URL = API_URL_STOCK + product_sku
     logging.info(f"URL de l'API de stock appelée : {API_URL}")
     
@@ -133,6 +138,7 @@ def check_rtx_50_founders():
     products = data.get("listMap", [])
     found_in_stock = set()
 
+    # Recherche du statut et notifications selon le statut
     for p in products:
         gpu_name = p.get("fe_sku", "").upper()
         is_active = p.get("is_active") == "true"
@@ -161,6 +167,7 @@ def check_rtx_50_founders():
         else:
             logging.info(f"{gpu} est actuellement hors stock.")
 
+# Boucle
 if __name__ == "__main__":
     while True:
         check_rtx_50_founders()

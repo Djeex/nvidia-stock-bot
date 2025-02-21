@@ -9,6 +9,8 @@ Ce robot :
 - Récupère le SKU du produit concerné
 - Appelle le stock lié à ce SKU
 - Si du stock est trouvé, envoie une notification discord via le webhook paramétré
+- Si le produit était déjà en stock, il n'envoie plus de notification
+- Si le produit était en stock mais ne l'est plus, envoie une notification discord signifiant la fin du stock
 
 Trois modes d'installation :
 - [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-avec-le-d%C3%A9pot)
@@ -65,7 +67,7 @@ Vous trouverez-ci dessous les instructions pour configurer le conteneur avec not
 version: "3.8"
 services:
   nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:wip
+    image: git.djeex.fr/djeex/nvidia-stock-bot
     container_name: nvidia-stock-bot
     restart: always # Le conteneur redémarrera automatiquement en cas d'échec
     environment:
@@ -73,6 +75,7 @@ services:
       - REFRESH_TIME= # Durée de rafraichissement du script en secondes
       - API_URL_SKU= # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
       - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
+      - TEST_MODE=  #true pour tester les notifications discord. false par défaut.
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
 ```
@@ -100,6 +103,9 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   ```sh
   export DISCORD_WEBHOOK_URL="https://votre_url_discord"
   export REFRESH_TIME="60"
+  export API_URL_SKU="https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090"
+  export API_URL_STOCK="https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus="
+  export TEST_MODE=false
   ```
 - Lancez le script
   

@@ -2,13 +2,13 @@ import requests
 import logging
 import time
 import os
+from requests.adapters import HTTPAdapter, Retry
 
 # Configuration du logger
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-
 logging.info("Démarrage du script")
 
 # Récupération des variables d'environnement
@@ -17,27 +17,27 @@ try:
     API_URL_SKU = os.environ['API_URL_SKU']
     API_URL_STOCK = os.environ['API_URL_STOCK']
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
+    TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
-    exit(1)  # Quitter le script proprement en cas d'erreur
+    exit(1)
 except ValueError:
     logging.error("REFRESH_TIME doit être un entier valide.")
     exit(1)
 
-# Afficher les valeurs des variables d'environnement
-print(f"url du webhook Discord: {DISCORD_WEBHOOK_URL}")
-print(f"url de l'API qui liste les SKU: {API_URL_SKU}")
-print(f"url de l'API de stock: {API_URL_STOCK}")
-#print(f"GPU recherché: {GPU_TARGETS}")
-print(f"Temps d'actualisation (en secondes) : {REFRESH_TIME}")
+# Affichage des URLs et configurations
+logging.info(f"URL Webhook Discord: {DISCORD_WEBHOOK_URL[:30]}******")
+logging.info(f"URL API SKU: {API_URL_SKU}")
+logging.info(f"URL API Stock: {API_URL_STOCK}")
+logging.info(f"Temps d'actualisation: {REFRESH_TIME} secondes")
+logging.info(f"Mode Test: {TEST_MODE}")
 
-
-# Entêtes HTTP pour la requête
+# Entêtes HTTP
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/131.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,"
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9," 
               "image/avif,image/webp,image/apng,*/*;q=0.8",
     "Accept-Encoding": "gzip, deflate, br, zstd",
     "Accept-Language": "en-US,en;q=0.5",
@@ -51,68 +51,83 @@ HEADERS = {
     "Sec-GPC": "1",
 }
 
+# Session avec retries
 session = requests.Session()
+retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+session.mount('https://', HTTPAdapter(max_retries=retries))
+
+# Stockage de l'état des stocks
+global_stock_status = {}
 
 def send_discord_notification(gpu_name: str, product_link: str):
-    """Envoie une notification Discord avec un embed via un webhook."""
+    if TEST_MODE:
+        logging.info(f"[TEST MODE] Notification Discord: {gpu_name} disponible !")
+        return
+    
     embed = {
         "title": f"🚀 {gpu_name} en stock !",
         "description": f":point_right: **[Achetez ici](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080&manufacturer=NVIDIA)**",
-        "color": 3066993,  # Couleur verte
+        "color": 3066993,
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
-        #"thumbnail": {
-        #    "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/geforce/graphic-cards/50-series/rtx-5090/geforce-rtx-5090-learn-more-og-1200x630.jpg"
-        #}
     }
-
-    payload = {
-        "content": "@everyone",
-        "username": "Nvidia Bot",
-        "embeds": [embed]
-    }
-
+    payload = {"content": "@everyone", "username": "Nvidia Bot", "embeds": [embed]}
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
-            logging.info("✅ Embed envoyé sur Discord.")
+            logging.info("✅ Notification envoyée sur Discord.")
         else:
-            logging.error(f"❌ Erreur d'envoi du webhook : {response.status_code} - {response.text}")
+            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
+    except Exception as e:
+        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
+
+def send_out_of_stock_notification(gpu_name: str, product_link: str):
+    if TEST_MODE:
+        logging.info(f"[TEST MODE] Notification Discord: {gpu_name} hors stock !")
+        return
+    
+    embed = {
+        "title": f"❌ {gpu_name} n'est plus en stock",
+        "description": f":disappointed_relieved:",
+        "color": 15158332,  # Rouge pour hors stock
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
+    }
+    payload = {"content": "@everyone", "username": "Nvidia Bot", "embeds": [embed]}
+    try:
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        if response.status_code == 204:
+            logging.info("✅ Notification 'hors stock' envoyée sur Discord.")
+        else:
+            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
 def check_rtx_50_founders():
-    """Liste les SKU à rechercher"""
+    global global_stock_status
     try:
         response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
         logging.info(f"Réponse de l'API : {response.status_code}")
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Erreur lors de l'appel API : {e}")
+        logging.error(f"Erreur API SKU : {e}")
         return
 
     product_details = data['searchedProducts']['productDetails'][0]
     product_sku = product_details['productSKU']
     product_upc = product_details.get('productUPC', "")
-
     if not isinstance(product_upc, list):
         product_upc = [product_upc]
     
-    # Dictionnaire stockant l'état de stock
-    stock_status = {gpu.upper(): False for gpu in product_upc}
-    
-    """Cherche les stock du sku concerné"""
     API_URL = API_URL_STOCK + product_sku
-    
-    print(f"url de l'API de stock: {API_URL}")
+    logging.info(f"URL de l'API de stock appelée : {API_URL}")
     
     try:
         response = session.get(API_URL, headers=HEADERS, timeout=10)
-        logging.info(f"Réponse de l'API : {response.status_code}")
+        logging.info(f"Réponse de l'API : {response.status_code}")  
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Erreur lors de l'appel API : {e}")
+        logging.error(f"Erreur API Stock : {e}")
         return
 
     products = data.get("listMap", [])
@@ -121,34 +136,30 @@ def check_rtx_50_founders():
     for p in products:
         gpu_name = p.get("fe_sku", "").upper()
         is_active = p.get("is_active") == "true"
-
-        if is_active:
-            if any(target.upper() in gpu_name for target in product_upc):
-                found_in_stock.add(gpu_name)
+        if is_active and any(target.upper() in gpu_name for target in product_upc):
+            found_in_stock.add(gpu_name)
 
     for gpu in product_upc:
         gpu_upper = gpu.upper()
-        currently_in_stock = (gpu_upper in found_in_stock)
-        previously_in_stock = stock_status[gpu_upper]
-
-        if currently_in_stock and not previously_in_stock:
-            for product in products:
-                product_name = product.get("fe_sku", "").upper()
-                if product_name == gpu_upper:
-                    real_gpu_name = product.get("fe_sku", "Inconnu")
-                    product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
-                    send_discord_notification(real_gpu_name, product_link)
-
-            stock_status[gpu_upper] = True
-            print(f"{gpu} est maintenant en stock!")
-
-        elif (not currently_in_stock) and previously_in_stock:
-            logging.info(f"{gpu} n'est plus en stock.")
-            stock_status[gpu_upper] = False
-            print(f"{gpu} est hors stock !")
+        currently_in_stock = gpu_upper in found_in_stock
+        previously_in_stock = global_stock_status.get(gpu_upper, False)
         
-        elif not currently_in_stock:
-            print(f"{gpu} est actuellement hors stock.")
+        if currently_in_stock and not previously_in_stock:
+            product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
+            send_discord_notification(gpu_upper, product_link)
+            global_stock_status[gpu_upper] = True
+            logging.info(f"{gpu} est maintenant en stock!")
+        elif not currently_in_stock and previously_in_stock:
+            product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
+            send_out_of_stock_notification(gpu_upper, product_link)
+            global_stock_status[gpu_upper] = False
+            logging.info(f"{gpu} n'est plus en stock.")
+
+        elif currently_in_stock and previously_in_stock:
+            logging.info(f"{gpu} est actuellement en stock.")
+            
+        else:
+            logging.info(f"{gpu} est actuellement hors stock.")
 
 if __name__ == "__main__":
     while True:

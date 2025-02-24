@@ -2,6 +2,7 @@ import requests
 import logging
 import time
 import os
+import re
 from requests.adapters import HTTPAdapter, Retry
 
 # Configuration du logger
@@ -18,6 +19,22 @@ try:
     API_URL_STOCK = os.environ['API_URL_STOCK']
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
+    
+    # Regex pour extraire l'ID et le token
+    match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
+    if match:
+        webhook_id = match.group(1)
+        webhook_token = match.group(2)
+
+        # Masquer derniers caractères de l'ID
+        masked_webhook_id = webhook_id[:len(webhook_id) - 10] + '*' * 10
+
+        # Masquer derniers caractères du token
+        masked_webhook_token = webhook_token[:len(webhook_token) - 120] + '*' * 10
+
+        # Reconstruction de l'url masquée
+        wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
+
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
     exit(1)
@@ -26,7 +43,7 @@ except ValueError:
     exit(1)
 
 # Affichage des URLs et configurations
-logging.info(f"URL Webhook Discord: {DISCORD_WEBHOOK_URL[:30]}******")
+logging.info(f"URL Webhook Discord: {wh_masked_url}")
 logging.info(f"URL API SKU: {API_URL_SKU}")
 logging.info(f"URL API Stock: {API_URL_STOCK}")
 logging.info(f"Temps d'actualisation: {REFRESH_TIME} secondes")

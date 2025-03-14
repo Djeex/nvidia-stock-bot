@@ -108,7 +108,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
         "fields": [
             {
             "name": "Prix",
-            "value": f"`{products_price} €`",
+            "value": f"`{products_price}€`",
             "inline": True
             },
 
@@ -123,7 +123,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             "value": f"{PRODUCT_URL}"
             }
         ],
-        "description": f"**:point_right: [Acheter maintenant]({product_link})**",
+
         "url": f"{product_link}",
         "footer": {
             "text": "Par KevOut & Djeex"
@@ -191,6 +191,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str):
 
     embed = {
         "title": f"🔄 {PRODUCT_NAME} Changement de SKU détecté",
+        "url": f"{product_link}",
         "description": f"**Ancien SKU** : `{old_sku}`\n**Nouveau SKU** : `{new_sku}`",
         "color": 16776960,  # Jaune
 

@@ -1,4 +1,4 @@
-# Nvidia Stock Bot - WIP
+# Nvidia Stock Bot
 Par KevOut & Djeex
 
 [![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96)
@@ -70,7 +70,7 @@ Vous trouverez-ci dessous les instructions pour configurer le conteneur avec not
 version: "3.8"
 services:
   nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:wip
+    image: git.djeex.fr/djeex/nvidia-stock-bot:latest
     container_name: nvidia-stock-bot
     restart: always # Le conteneur redémarrera automatiquement en cas d'échec
     environment:

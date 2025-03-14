@@ -108,8 +108,10 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   ```sh
   export DISCORD_WEBHOOK_URL="https://votre_url_discord"
   export REFRESH_TIME="60"
-  export API_URL_SKU="https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090"
+  export API_URL_SKU="https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205080"
   export API_URL_STOCK="https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus="
+  export PRODUCT_URL= "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205080&manufacturer=NVIDIA"
+  export PRODUCT_NAME="RTX 5080"
   export TEST_MODE=false
   ```
 - Lancez le script

@@ -124,7 +124,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             }
         ],
         "description": f"**:point_right: [Acheter maintenant]({product_link})**",
-        "url": f"{product_link}"
+        "url": f"{product_link}",
         "footer": {
             "text": "Par KevOut & Djeex"
         }

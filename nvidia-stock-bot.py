@@ -117,16 +117,10 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             },
-
-            {
-            "name": "Lien",
-            "value": f"{PRODUCT_URL}"
-            }
         ],
-
-        "url": f"{product_link}",
+        "description": f"**:point_right: [Acheter maintenant]({product_link})**",
         "footer": {
-            "text": "Par KevOut & Djeex"
+            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
         }
     }
     payload = {"content": "@everyone", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg", "embeds": [embed]}
@@ -159,7 +153,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
             "name": "Nvidia Founder Editions"
         },
         "footer": {
-            "text": "Par KevOut & Djeex"
+            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
         },
 
         "fields": [
@@ -180,7 +174,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
-def send_sku_change_notification(old_sku: str, new_sku: str):
+def send_sku_change_notification(old_sku: str, new_sku: str, gpu_name: str, product_link: str):
     
     # Récupérer le timestamp UNIX actuel
     timestamp_unix = int(time.time())
@@ -196,7 +190,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str):
         "color": 16776960,  # Jaune
 
         "footer": {
-            "text": "Par KevOut & Djeex"
+            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
         },
 
         "fields": [

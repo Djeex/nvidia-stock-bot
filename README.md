@@ -3,6 +3,7 @@ Par KevOut & Djeex
 
 [![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96)
 
+Bot qui permet d'être alerté des stocks de Nvidia RTX FE.
 
 Ce robot :
 - Appelle l'API de Nvidia listant le produit (par défaut toutes les 60s)

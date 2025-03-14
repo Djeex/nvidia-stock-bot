@@ -1,4 +1,4 @@
-# Nvidia Stock Bot
+# Nvidia Stock Bot - WIP
 Par KevOut & Djeex
 
 [![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96)
@@ -69,7 +69,7 @@ Vous trouverez-ci dessous les instructions pour configurer le conteneur avec not
 version: "3.8"
 services:
   nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:latest
+    image: git.djeex.fr/djeex/nvidia-stock-bot:wip
     container_name: nvidia-stock-bot
     restart: always # Le conteneur redémarrera automatiquement en cas d'échec
     environment:
@@ -77,6 +77,8 @@ services:
       - REFRESH_TIME= # Durée de rafraichissement du script en secondes
       - API_URL_SKU= # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
       - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
+      - PRODUCT_URL= # URL d'achat du GPU
+      - PRODUCT_NAME= #Le nom du GPU qui s'affiche dans les notifications
       - TEST_MODE=  #true pour tester les notifications discord. false par défaut.
       - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur

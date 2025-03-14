@@ -19,6 +19,8 @@ try:
     API_URL_STOCK = os.environ['API_URL_STOCK']
     REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
+    PRODUCT_URL = os.environ['PRODUCT_URL']
+    PRODUCT_NAME = os.environ['PRODUCT_NAME']
     
     # Regex pour extraire l'ID et le token
     match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
@@ -43,11 +45,14 @@ except ValueError:
     exit(1)
 
 # Affichage des URLs et configurations
+logging.info(f"GPU: {PRODUCT_NAME}")
 logging.info(f"URL Webhook Discord: {wh_masked_url}")
 logging.info(f"URL API SKU: {API_URL_SKU}")
 logging.info(f"URL API Stock: {API_URL_STOCK}")
+logging.info(f"URL produit: {PRODUCT_URL}")
 logging.info(f"Temps d'actualisation: {REFRESH_TIME} secondes")
 logging.info(f"Mode Test: {TEST_MODE}")
+
 
 # Entêtes HTTP
 HEADERS = {
@@ -76,19 +81,26 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 # Stockage de l'état des stocks
 global_stock_status = {}
 
+# Stocke le dernier SKU connu
+last_sku = None
+first_run = True  # Before calling check_rtx_50_founders
+
 # Notifications Discord
 def send_discord_notification(gpu_name: str, product_link: str, products_price: str):
+    
+    # Récupérer le timestamp UNIX actuel
+    timestamp_unix = int(time.time())
+
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification Discord: {gpu_name} disponible !")
         return
     
     embed = {
-        "title": f"🚀 {gpu_name} EN STOCK !",
+        "title": f"🚀 {PRODUCT_NAME} EN STOCK !",
         "color": 3066993,
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
         },
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
         "author": {
             "name": "Nvidia Founder Editions"
         },
@@ -98,9 +110,21 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             "name": "Prix",
             "value": f"`{products_price} €`",
             "inline": True
+            },
+
+            {
+            "name": "Heure",
+            "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
+            "inline": True
+            },
+
+            {
+            "name": "Lien",
+            "value": f"{PRODUCT_URL}"
             }
         ],
-        "description": "**:point_right: [Acheter maintenant](https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080)**",
+        "description": f"**:point_right: [Acheter maintenant]({product_link})**",
+        "url": f"{product_link}"
         "footer": {
             "text": "Par KevOut & Djeex"
         }
@@ -116,25 +140,35 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
 def send_out_of_stock_notification(gpu_name: str, product_link: str, products_price: str):
+    
+    # Récupérer le timestamp UNIX actuel
+    timestamp_unix = int(time.time())
+
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification Discord: {gpu_name} hors stock !")
         return
     
     embed = {
-        "title": f"❌ {gpu_name} n'est plus en stock",
-        "description": f":disappointed_relieved:",
+        "title": f"❌ {PRODUCT_NAME} n'est plus en stock",
         "color": 15158332,  # Rouge pour hors stock
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime()),
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
         },
-        "url": "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080",
+        "url": f"{product_link}",
         "author": {
             "name": "Nvidia Founder Editions"
         },
         "footer": {
             "text": "Par KevOut & Djeex"
-        }
+        },
+
+        "fields": [
+            {
+            "name": "Heure",
+            "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
+            "inline": True
+            }
+        ]
     }
     payload = {"username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg", "embeds": [embed]}
     try:
@@ -146,19 +180,76 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
+def send_sku_change_notification(old_sku: str, new_sku: str):
+    
+    # Récupérer le timestamp UNIX actuel
+    timestamp_unix = int(time.time())
+
+    if TEST_MODE:
+        logging.info(f"[TEST MODE] Changement de SKU détecté : {old_sku} → {new_sku}")
+        return
+
+    embed = {
+        "title": f"🔄 {PRODUCT_NAME} Changement de SKU détecté",
+        "description": f"**Ancien SKU** : `{old_sku}`\n**Nouveau SKU** : `{new_sku}`",
+        "color": 16776960,  # Jaune
+
+        "footer": {
+            "text": "Par KevOut & Djeex"
+        },
+
+        "fields": [
+            {
+            "name": "Heure",
+            "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
+            "inline": True
+            }
+        ]
+    }
+    
+    payload = {
+        "content": "@everyone ⚠️ Potentiel drop imminent !",
+        "username": "NviBot",
+        "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg",
+        "embeds": [embed]
+    }
+    
+    try:
+        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        if response.status_code == 204:
+            logging.info("✅ Notification de changement de SKU envoyée sur Discord.")
+        else:
+            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
+    except Exception as e:
+        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
+
 # Recherche du stock
 def check_rtx_50_founders():
-    global global_stock_status
+    global global_stock_status, last_sku, first_run
 
     # Appel vers l'API produit pour récupérer le sku et l'upc
+
     try:
         response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
-        logging.info(f"Réponse de l'API : {response.status_code}")
+        logging.info(f"Réponse de l'API SKU : {response.status_code}")
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
         logging.error(f"Erreur API SKU : {e}")
         return
+
+    product_details = data['searchedProducts']['productDetails'][0]
+    product_sku = product_details['productSKU']
+
+    # Vérifier si c'est la première exécution
+    if last_sku is not None and product_sku != last_sku:
+        if not first_run:  # Évite d'envoyer une notification au premier appel
+            logging.warning(f"⚠️ SKU modifié : {last_sku} → {product_sku}")
+            send_sku_change_notification(last_sku, product_sku)
+
+    # Mettre à jour le SKU stocké
+    last_sku = product_sku
+    first_run = False  # Désactive la protection après la première exécution
 
     product_details = data['searchedProducts']['productDetails'][0]
     product_sku = product_details['productSKU']
@@ -207,12 +298,12 @@ def check_rtx_50_founders():
         previously_in_stock = global_stock_status.get(gpu_upper, False)
         
         if currently_in_stock and not previously_in_stock:
-            product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
+            product_link = PRODUCT_URL
             send_discord_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = True
             logging.info(f"{gpu} est maintenant en stock!")
         elif not currently_in_stock and previously_in_stock:
-            product_link = "https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205090,RTX%205080"
+            product_link = PRODUCT_URL
             send_out_of_stock_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = False
             logging.info(f"{gpu} n'est plus en stock.")

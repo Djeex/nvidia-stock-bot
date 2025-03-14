@@ -11,6 +11,7 @@ Ce robot :
 - Si du stock est trouvé, envoie une notification discord via le webhook paramétré
 - Si le produit était déjà en stock, il n'envoie plus de notification
 - Si le produit était en stock mais ne l'est plus, envoie une notification discord signifiant la fin du stock
+- Si le SKU change, une notification est envoyée alertant de l'éventuelle imminence du drop
 
 <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot.png" align="center">
 

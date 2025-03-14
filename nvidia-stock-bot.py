@@ -120,7 +120,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
         ],
         "description": f"**:point_right: [Acheter maintenant]({product_link})**",
         "footer": {
-            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
+            "text": "Par KevOut & Djeex"
         }
     }
     payload = {"content": "@everyone", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000_pp.jpg", "embeds": [embed]}
@@ -153,7 +153,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
             "name": "Nvidia Founder Editions"
         },
         "footer": {
-            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
+            "text": "Par KevOut & Djeex"
         },
 
         "fields": [
@@ -174,7 +174,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
     except Exception as e:
         logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
 
-def send_sku_change_notification(old_sku: str, new_sku: str, gpu_name: str, product_link: str):
+def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     
     # Récupérer le timestamp UNIX actuel
     timestamp_unix = int(time.time())
@@ -190,7 +190,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str, gpu_name: str, prod
         "color": 16776960,  # Jaune
 
         "footer": {
-            "text": "Par KevOut & Djeex · [git](https://git.djeex.fr/Djeex/nvidia-stock-bot)"
+            "text": "Par KevOut & Djeex"
         },
 
         "fields": [
@@ -239,8 +239,9 @@ def check_rtx_50_founders():
     # Vérifier si c'est la première exécution
     if last_sku is not None and product_sku != last_sku:
         if not first_run:  # Évite d'envoyer une notification au premier appel
+            product_link = PRODUCT_URL
             logging.warning(f"⚠️ SKU modifié : {last_sku} → {product_sku}")
-            send_sku_change_notification(last_sku, product_sku)
+            send_sku_change_notification(last_sku, product_sku, product_link)
 
     # Mettre à jour le SKU stocké
     last_sku = product_sku

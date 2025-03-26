@@ -1,6 +1,8 @@
 # Nvidia Stock Bot
 Par KevOut & Djeex
 
+*Ce projet est protégé par la license Non-Profit Open Software License 3.0 (NPOSL-3.0)*
+
 [![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96)
 
 Bot qui permet d'être alerté des stocks de Nvidia RTX FE.

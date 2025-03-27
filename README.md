@@ -10,6 +10,7 @@ Bot qui permet d'être alerté des stocks de Nvidia RTX FE.
 
 <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.jpg" align="center">
 
+
 Ce robot :
 - Appelle l'API de Nvidia listant le produit (par défaut toutes les 60s)
 - Récupère le SKU du produit concerné

@@ -1,43 +1,93 @@
-# Nvidia Stock Bot
-Par KevOut & Djeex
+<h1 align="center"> Nvidia Stock Bot</h1>
+<div align="center">
+    <a href="https://discord.gg/gxffg3GA96">
+        <img src="https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff" alt="JV Hardware">
+    <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">
+        <img src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-8E44AD?style=flat-square" alt="License: CC BY-NC 4.0">
+    </a>
+</div>
+<div align="center"><em>Le code a été en partie rédigé et structuré à l'aide d'une IA générative.</em>
+</div>
+<br>
 
-*Ce projet est protégé par la license Non-Profit Open Software License 3.0 (NPOSL-3.0).*
+**Nvidia Stock Bot** - Un robot qui permet d'être alerté en temps réel des stocks de cartes graphiques **Nvidia RTX FE** grâce à des notifications Discord.
 
-*Le code a été en partie rédigé et structuré à l'aide d'une IA générative.*
+<br>
 
+<p align="center">
+    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" style="border-radius: 10px;" alt="Nvidia Stock Bot">
+</p>
 
-[![](https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff&label=JV%20hardware&link=https%3A%2F%2Fdiscord.gg%2Fgxffg3GA96)](https://discord.gg/gxffg3GA96) ![Licence: NPOSL-3.0](https://img.shields.io/badge/license-NPOSL--3.0-blue?style=flat-square&)
+## Sommaire
 
-Bot qui permet d'être alerté des stocks de Nvidia RTX FE.
+- [Fonctionnalités](#fonctionnalit%C3%A9s)
+- [Installation docker sans le dépot (rapide)](#installation-sans-le-d%C3%A9pot-avec-docker-compose)
+- [Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
+- [Installation avec Python (développeur)](#installation-avec-python)
 
-<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.jpg" align="center">
+## Fonctionnalités
 
-
-Ce robot :
-- Appelle l'API de Nvidia listant le produit (par défaut toutes les 60s)
-- Récupère le SKU du produit concerné
-- Appelle le stock lié à ce SKU
-- Si du stock est trouvé, envoie une notification discord via le webhook paramétré
-- Si le produit était déjà en stock, il n'envoie plus de notification
-- Si le produit était en stock mais ne l'est plus, envoie une notification discord signifiant la fin du stock
-- Si le SKU change, une notification est envoyée alertant de l'éventuelle imminence du drop
+- Notification Discord `@everyone` en cas de changement du SKU (potentiel drop imminent)
+- Notification Discord `@everyone` en cas de stock détecté avec modèle, prix, et lien
+- Notification Discord silencieuse en cas d'absence de stock détécté
+- Choix de la fréquence de la vérification
+- Choix du modèle à surveiller
 
 <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot.png" align="center">
 
-Trois modes d'installation :
-- [Avec le dépot Git et Docker](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-avec-le-d%C3%A9pot)
-- [Sans le dépot Git et avec notre image docker fournie](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-sans-le-d%C3%A9pot-avec-docker-compose)
-- [Avec python (développeurs)](https://git.djeex.fr/Djeex/nvidia-stock-bot/#installation-sans-le-d%C3%A9pot-avec-docker-compose)
+## Installation sans le dépot avec docker compose
+
+Vous trouverez-ci dessous les instructions pour configurer le conteneur avec notre image pré-compilée. Avec cette solution, votre bot tournera tout seul tant que le conteneur est actif.
+
+**Pré-requis**
+- [Docker](https://docs.docker.com/engine/install/)
+
+**Configuration**
+
+- Créez un dossier `nvidia-stock-bot`
+- Créez le fichier `compose.yaml` dans ce dossier avec la configuration ci-dessous :
+
+```yaml
+version: "3.8"
+services:
+  nvidia-stock-bot:
+    image: git.djeex.fr/djeex/nvidia-stock-bot:latest
+    container_name: nvidia-stock-bot
+    restart: always
+    environment:
+      - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
+      - REFRESH_TIME=        # Durée de rafraichissement du script en secondes
+      - API_URL_SKU=         # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
+      - API_URL_STOCK=       # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
+      - PRODUCT_URL=         # URL d'achat du GPU
+      - PRODUCT_NAME=        # Le nom du GPU qui s'affiche dans les notifications
+      - TEST_MODE=           # true pour tester les notifications discord. false par défaut.
+      - PYTHONUNBUFFERED=1   # Permet d'afficher les logs en temps réel
+    command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
+```
+
+**Lancer l'image**
+
+Rendez-vous dans le dossier `nvidia-stock-bot` et lancez le conteneur :
+```sh
+docker compose up -d
+```
+
+**Voir les logs pour vérifier le bon fonctionnement**
+
+```sh
+docker logs -f nvidia-stock-bot
+```
 
 ## Installation avec le dépot
 
 Vous trouverez-ci dessous les instructions pour installer le dépot, compiler l'image docker, et lancer le conteneur. Avec cette solution, votre bot tournera tout seul tant que le conteneur est actif.
 
-### Pré-requis
-- Git
-- Docker
+**Pré-requis**
+- [Git](https://git-scm.com/docs)
+- [Docker](https://docs.docker.com/engine/install/)
 
-### Cloner et paramétrer
+**Cloner et paramétrer**
 
 Clonez le repo :
 ```sh
@@ -54,57 +104,29 @@ Rendez-vous dans le dossier `nvidia-stock-bot/docker` et éditez le fichier `.en
 - les différents liens API et produits
 - la fréquence de consultation des stock (par défaut 60s, attention à ne pas trop descendre sous peine de blocage de votre adresse IP par nVidia)
 
-### Lancer l'image
+**Lancer l'image**
 
 Rendez-vous dans le dossier `nvidia-stock-bot/docker` et lancez le conteneur :
 ```sh
 docker compose up -d
 ```
 
-### Voir les logs pour vérifier le bon fonctionnement
+**Voir les logs pour vérifier le bon fonctionnement**
 
 ```sh
 docker logs -f nvidia-stock-bot
-```
-
-## Installation sans le dépot avec docker compose
-
-Vous trouverez-ci dessous les instructions pour configurer le conteneur avec notre image pré-compilée. Avec cette solution, votre bot tournera tout seul tant que le conteneur est actif.
-
-### Pré-requis
-- Docker
-
-### Configuration
-
-```yaml
-version: "3.8"
-services:
-  nvidia-stock-bot:
-    image: git.djeex.fr/djeex/nvidia-stock-bot:latest
-    container_name: nvidia-stock-bot
-    restart: always # Le conteneur redémarrera automatiquement en cas d'échec
-    environment:
-      - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
-      - REFRESH_TIME= # Durée de rafraichissement du script en secondes
-      - API_URL_SKU= # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
-      - API_URL_STOCK= # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
-      - PRODUCT_URL= # URL d'achat du GPU
-      - PRODUCT_NAME= #Le nom du GPU qui s'affiche dans les notifications
-      - TEST_MODE=  #true pour tester les notifications discord. false par défaut.
-      - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
-    command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
 ```
 
 ## Installation avec Python
 
 Vous trouverez ci-dessous comment exécuter directement le script Python. Avec cette solution, le bot s'arretera si vous fermez votre terminal.
 
-### Pré-requis
+**Pré-requis**
 
 - Python 3.11 ou plus
 - requests : `pip install requests`
 
-### Configuration
+**Configuration**
 
 - Créez un environnement virtuel (exemple : `python3 -m venv nom_de_l_environnement` )
 - Créez un dossier et aller dedans

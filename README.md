@@ -49,6 +49,7 @@ docker build -t nvidia-stock-bot .
 
 Rendez-vous dans le dossier `nvidia-stock-bot/docker` et éditez le fichier `.env` avec :
 - l'url de votre webhook discord
+- les différents liens API et produits
 - la fréquence de consultation des stock (par défaut 60s, attention à ne pas trop descendre sous peine de blocage de votre adresse IP par nVidia)
 
 ### Lancer l'image

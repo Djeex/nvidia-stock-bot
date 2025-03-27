@@ -1,6 +1,3 @@
-<div align="center">
-    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" style="border-radius: 10px;" alt="Nvidia Stock Bot">
-</div>
 <h1 align="center"> Nvidia Stock Bot</h1>
 <div align="center">
     <a href="https://discord.gg/gxffg3GA96">
@@ -9,17 +6,15 @@
         <img src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-8E44AD?style=flat-square" alt="License: CC BY-NC 4.0">
     </a>
 </div>
-<div align="center"><em>Le code a été en partie rédigé et structuré à l'aide d'une IA générative.</em>
+
 </div>
-<br>
+<div align="center" >
+    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" style="border-radius: 10px;" alt="Nvidia Stock Bot" width="300">
+</div>
 
 **Nvidia Stock Bot** - Un robot qui permet d'être alerté en temps réel des stocks de cartes graphiques **Nvidia RTX FE** grâce à des notifications Discord.
 
-<br>
-
-<p align="center">
-    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" style="border-radius: 10px;" alt="Nvidia Stock Bot">
-</p>
+*Le code a été en partie rédigé et structuré à l'aide d'une IA générative.*
 
 ## Sommaire
 

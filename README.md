@@ -1,3 +1,6 @@
+<div align="center">
+    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" style="border-radius: 10px;" alt="Nvidia Stock Bot">
+</div>
 <h1 align="center"> Nvidia Stock Bot</h1>
 <div align="center">
     <a href="https://discord.gg/gxffg3GA96">

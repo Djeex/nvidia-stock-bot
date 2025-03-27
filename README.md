@@ -1,7 +1,8 @@
 # Nvidia Stock Bot
 Par KevOut & Djeex
 
-*Ce projet est protégé par la license Non-Profit Open Software License 3.0 (NPOSL-3.0)*
+*Ce projet est protégé par la license Non-Profit Open Software License 3.0 (NPOSL-3.0).*
+
 *Le code a été en partie rédigé et structuré à l'aide d'une IA générative*
 
 

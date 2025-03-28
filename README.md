@@ -5,11 +5,10 @@
     <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">
         <img src="https://img.shields.io/badge/License-CC%20BY--NC%204.0-8E44AD?style=flat-square" alt="License: CC BY-NC 4.0">
     </a>
-</div>
 
 </div>
 <div align="center" >
-    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" style="border-radius: 10px;" alt="Nvidia Stock Bot" width="300">
+    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" alt="Nvidia Stock Bot" width="300">
 </div>
 
 **Nvidia Stock Bot** - Un robot qui permet d'être alerté en temps réel des stocks de cartes graphiques **Nvidia RTX FE** grâce à des notifications Discord.
@@ -22,6 +21,7 @@
 - [Installation docker sans le dépot (rapide)](#installation-sans-le-d%C3%A9pot-avec-docker-compose)
 - [Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
 - [Installation avec Python (développeur)](#installation-avec-python)
+- [Captures d'écran](#captures-d%C3%A9cran)
 
 ## Fonctionnalités
 
@@ -149,3 +149,9 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   ```sh
   python nvidia-stock-bot.py
   ```
+
+## Captures d'écran
+
+  <div align="center" >
+    <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - captures">
+</div>

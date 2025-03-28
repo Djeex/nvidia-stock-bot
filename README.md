@@ -22,6 +22,7 @@
 - [Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
 - [Installation avec Python (développeur)](#installation-avec-python)
 - [Captures d'écran](#captures-d%C3%A9cran)
+- [Contributeurs](#contributeurs)
 
 ## Fonctionnalités
 
@@ -155,3 +156,11 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   <div align="center" >
     <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - captures">
 </div>
+
+## Contributeurs
+
+On remercie pour leurs contributions :
+
+- Djeex
+- KevOut
+- Extreme2pac

@@ -32,7 +32,7 @@
 - Choix de la fréquence de la vérification
 - Choix du modèle à surveiller
 
-<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot.png" align="center">
+<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot_schematics.png" align="center">
 
 ## Installation sans le dépot avec docker compose
 

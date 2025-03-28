@@ -22,6 +22,7 @@
 - [Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
 - [Installation avec Python (développeur)](#installation-avec-python)
 - [Captures d'écran](#captures-d%C3%A9cran)
+- [Contributeurs](#contributeurs)
 
 ## Fonctionnalités
 
@@ -87,20 +88,20 @@ Vous trouverez-ci dessous les instructions pour installer le dépot, compiler l'
 
 **Cloner et paramétrer**
 
-Clonez le repo :
+- Clonez le repo :
 ```sh
 git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
 ```
 
-Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
+- Rendez vous dans le dossier `nvidia-stock-bot` et compilez l'image docker :
 ```sh
 docker build -t nvidia-stock-bot .
 ```
 
-Rendez-vous dans le dossier `nvidia-stock-bot/docker` et éditez le fichier `.env` avec :
-- l'url de votre webhook discord
-- les différents liens API et produits
-- la fréquence de consultation des stock (par défaut 60s, attention à ne pas trop descendre sous peine de blocage de votre adresse IP par nVidia)
+-Puis rendez-vous dans le dossier `nvidia-stock-bot/docker` et éditez le fichier `.env` avec :
+  - l'url de votre webhook discord
+  - les différents liens API et produits
+  - la fréquence de consultation des stock (par défaut 60s, attention à ne pas trop descendre sous peine de blocage de votre adresse IP par nVidia)
 
 **Lancer l'image**
 
@@ -155,3 +156,11 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   <div align="center" >
     <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - captures">
 </div>
+
+## Contributeurs
+
+On remercie pour leurs contributions :
+
+- Djeex
+- KevOut
+- Extreme2pac

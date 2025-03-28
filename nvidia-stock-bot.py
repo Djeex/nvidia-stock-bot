@@ -153,8 +153,10 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
         "author": {
             "name": "Nvidia Founder Editions"
         },
+        
         "footer": {
-            "text": "Par KevOut & Djeex"
+            "text": "NviBot • JV Hardware 2.0",
+            "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         },
 
         "fields": [
@@ -191,7 +193,8 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
         "color": 16776960,  # Jaune
 
         "footer": {
-            "text": "Par KevOut & Djeex"
+            "text": "NviBot • JV Hardware 2.0",
+            "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         },
 
         "fields": [

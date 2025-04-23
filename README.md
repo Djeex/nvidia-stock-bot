@@ -47,23 +47,30 @@ Vous trouverez-ci dessous les instructions pour configurer le conteneur avec not
 - Créez le fichier `compose.yaml` dans ce dossier avec la configuration ci-dessous :
 
 ```yaml
-version: "3.8"
 services:
   nvidia-stock-bot:
     image: git.djeex.fr/djeex/nvidia-stock-bot:latest
     container_name: nvidia-stock-bot
-    restart: always
+    restart: unless-stopped
     environment:
       - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
-      - REFRESH_TIME=        # Durée de rafraichissement du script en secondes
-      - API_URL_SKU=         # API listant le produit par exemple https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205090
-      - API_URL_STOCK=       # API appelant le stock sans préciser la valeur du sku, par exemple https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=
-      - PRODUCT_URL=         # URL d'achat du GPU
-      - PRODUCT_NAME=        # Le nom du GPU qui s'affiche dans les notifications
-      - TEST_MODE=           # true pour tester les notifications discord. false par défaut.
+      - PRODUCT_NAME=        # Le nom exact du GPU que vous recherchez comme : "RTX 5080"
       - PYTHONUNBUFFERED=1   # Permet d'afficher les logs en temps réel
-    command: python nvidia-stock-bot.py # Lance le script Python au démarrage du conteneur
+    command: python nvidia-stock-bot.py
 ```
+
+**Variables d'environnements :**
+
+| Variables           | Explications                                    | Valeurs possibles                                                  | Valeur par défaut                                                                                              |
+|---------------------|-------------------------------------------------|--------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| DISCORD_WEBHOOK_URL | URL de votre webhook Discord                    | Une URL                       |                                                                                                                |
+| REFRESH_TIME        | Durée de rafraichissement du script en secondes | `60`, `30`, etc...                                                     | `30`                                                                                                             |
+| API_URL_SKU         | API listant le produit                          | Une URL                     | `https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia`              |
+| API_URL_STOCK       | API donnant le stock                            | Une URL        | `https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=`                                         |
+| PRODUCT_URL         | URL d'achat du GPU                              | Une URL | `https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA` |
+| PRODUCT_NAME        | Le nom exact du GPU que vous recherchez         | `RTX 5090`, `RTX 5080` ou `RTX 5070`.                                    |                                                                                                                |
+| TEST_MODE           | Pour tester sans envoyer de notifs              | `True`, `False`                                                        | `False`                                                                                                          |
+| PYTHONUNBUFFERED    | #Permet d'afficher les logs en temps réel       | `1`, `0`                                                               | `1`                                                                                                              |
 
 **Lancer l'image**
 

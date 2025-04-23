@@ -14,14 +14,22 @@ logging.info("Démarrage du script")
 
 # Récupération des variables d'environnement
 try:
-    DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
-    API_URL_SKU = os.environ['API_URL_SKU']
-    API_URL_STOCK = os.environ['API_URL_STOCK']
-    REFRESH_TIME = int(os.environ['REFRESH_TIME'])  # Convertir en entier
+    DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
+    API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
+    API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
+    REFRESH_TIME = int(os.environ.get('REFRESH_TIME', 30))
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
-    PRODUCT_URL = os.environ['PRODUCT_URL']
-    PRODUCT_NAME = os.environ['PRODUCT_NAME']
+    PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
+    PRODUCT_NAME = os.environ.get('PRODUCT_NAME')
     
+    if not DISCORD_WEBHOOK_URL:
+        logging.error("❌ DISCORD_WEBHOOK_URL est requis mais non défini.")
+        exit(1)
+
+    if not PRODUCT_NAME:
+        logging.error("❌ PRODUCT_NAME est requis mais non défini.")
+        exit(1)
+
     # Regex pour extraire l'ID et le token
     match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
     if match:

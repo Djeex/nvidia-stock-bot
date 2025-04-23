@@ -237,24 +237,25 @@ def check_rtx_50_founders():
         logging.error(f"Erreur API SKU : {e}")
         return
 
-    # Recherche dynamique basée sur PRODUCT_NAME (ex: "RTX 5080")
-    product_details = next(
-        (p for p in data['searchedProducts']['productDetails'] 
-        if PRODUCT_NAME.lower() in p.get("gpu", "").lower()), 
-        None
-    )
+   # Recherche du produit dont le GPU correspond à PRODUCT_NAME
+    product_details = None
+
+    for p in data['searchedProducts']['productDetails']:
+        gpu_name = p.get("gpu", "").strip()
+        
+        # Si le GPU correspond exactement à PRODUCT_NAME
+        if gpu_name == PRODUCT_NAME.strip():
+            product_details = p
+            break  # Sortir dès qu'on trouve le bon produit
 
     if not product_details:
-        logging.warning(f"⚠️ Aucun produit ne correspond à '{PRODUCT_NAME}' dans les résultats de l'API SKU.")
+        logging.warning(f"⚠️ Aucun produit avec le GPU '{PRODUCT_NAME}' trouvé.")
         return
 
+    # Récupérer le SKU pour le GPU trouvé
     product_sku = product_details['productSKU']
     product_upc = product_details.get('productUPC', "")
 
-    # S'assurer que product_upc est une liste
-    if not isinstance(product_upc, list):
-        product_upc = [product_upc]
-        product_sku = product_details['productSKU']
 
     # Vérifier si c'est la première exécution
     if last_sku is not None and product_sku != last_sku:
@@ -267,9 +268,6 @@ def check_rtx_50_founders():
     last_sku = product_sku
     first_run = False  # Désactive la protection après la première exécution
 
-    product_details = data['searchedProducts']['productDetails'][0]
-    product_sku = product_details['productSKU']
-    product_upc = product_details.get('productUPC', "")
     if not isinstance(product_upc, list):
         product_upc = [product_upc]
     

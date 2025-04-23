@@ -54,7 +54,7 @@ services:
     restart: unless-stopped
     environment:
       - DISCORD_WEBHOOK_URL= # URL de votre webhook Discord
-      - PRODUCT_NAME=        # Le nom exact du GPU que vous recherchez comme : "RTX 5080"
+      - PRODUCT_NAME=        # Le nom exact du GPU que vous recherchez comme "RTX 5080"
       - PYTHONUNBUFFERED=1   # Permet d'afficher les logs en temps réel
     command: python nvidia-stock-bot.py
 ```

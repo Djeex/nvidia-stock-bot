@@ -237,8 +237,24 @@ def check_rtx_50_founders():
         logging.error(f"Erreur API SKU : {e}")
         return
 
-    product_details = data['searchedProducts']['productDetails'][0]
+    # Recherche dynamique basée sur PRODUCT_NAME (ex: "RTX 5080")
+    product_details = next(
+        (p for p in data['searchedProducts']['productDetails'] 
+        if PRODUCT_NAME.lower() in p.get("gpu", "").lower()), 
+        None
+    )
+
+    if not product_details:
+        logging.warning(f"⚠️ Aucun produit ne correspond à '{PRODUCT_NAME}' dans les résultats de l'API SKU.")
+        return
+
     product_sku = product_details['productSKU']
+    product_upc = product_details.get('productUPC', "")
+
+    # S'assurer que product_upc est une liste
+    if not isinstance(product_upc, list):
+        product_upc = [product_upc]
+        product_sku = product_details['productSKU']
 
     # Vérifier si c'est la première exécution
     if last_sku is not None and product_sku != last_sku:

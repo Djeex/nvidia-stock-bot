@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Définir les variables d'environnement par défaut (modifiable lors du lancement du conteneur)
 ENV DISCORD_WEBHOOK_URL="https://example.com/webhook" \
-    REFRESH_TIME="60"
+    REFRESH_TIME="30"
 
 # Exposer un point de commande pour exécuter le script
 CMD ["python", "nvidia-stock-bot.py"]

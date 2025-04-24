@@ -1,4 +1,4 @@
-<h1 align="center"> Nvidia Stock Bot</h1>
+<h1 align="center">Nvidia Stock Bot</h1>
 <div align="center">
     <a href="https://discord.gg/gxffg3GA96">
         <img src="https://img.shields.io/badge/JV%20hardware-rejoindre-green?style=flat-square&logo=discord&logoColor=%23fff" alt="JV Hardware">
@@ -11,20 +11,20 @@
     <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-logo.png" alt="Nvidia Stock Bot" width="300">
 </div>
 
-**Nvidia Stock Bot** - Un robot qui permet d'être alerté en temps réel des stocks de cartes graphiques **Nvidia RTX FE** grâce à des notifications Discord.
+**🤖 Nvidia Stock Bot** - Un robot qui permet d'être alerté en temps réel des stocks de cartes graphiques **Nvidia RTX FE** grâce à des notifications Discord.
 
 *Le code a été en partie rédigé et structuré à l'aide d'une IA générative.*
 
-## Sommaire
+## 📌 Sommaire
 
-- [Fonctionnalités](#fonctionnalit%C3%A9s)
-- [Installation docker sans le dépot (rapide)](#installation-sans-le-d%C3%A9pot-avec-docker-compose)
-- [Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
-- [Installation avec Python (développeur)](#installation-avec-python)
-- [Captures d'écran](#captures-d%C3%A9cran)
-- [Contributeurs](#contributeurs)
+- [✨ Fonctionnalités](#fonctionnalit%C3%A9s)
+- [🐳 Installation docker sans le dépot (rapide)](#installation-sans-le-d%C3%A9pot-avec-docker-compose)
+- [🐙 Installation docker avec le dépot (développeur)](#installation-avec-le-d%C3%A9pot)
+- [🐍 Installation avec Python (développeur)](#installation-avec-python)
+- [🖼️ Captures d'écran](#captures-d%C3%A9cran)
+- [🧑‍💻 Contributeurs](#contributeurs)
 
-## Fonctionnalités
+## ✨ Fonctionnalités
 
 - Notification Discord `@everyone` en cas de changement du SKU (potentiel drop imminent)
 - Notification Discord `@everyone` en cas de stock détecté avec modèle, prix, et lien
@@ -34,7 +34,7 @@
 
 <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot_schematics.png" align="center">
 
-## Installation sans le dépot avec docker compose
+## 🐳 Installation sans le dépot avec docker compose
 
 Vous trouverez-ci dessous les instructions pour configurer le conteneur avec notre image pré-compilée. Avec cette solution, votre bot tournera tout seul tant que le conteneur est actif.
 
@@ -85,7 +85,7 @@ docker compose up -d
 docker logs -f nvidia-stock-bot
 ```
 
-## Installation avec le dépot
+## 📦 Installation avec le dépot
 
 Vous trouverez-ci dessous les instructions pour installer le dépot, compiler l'image docker, et lancer le conteneur. Avec cette solution, votre bot tournera tout seul tant que le conteneur est actif.
 
@@ -123,7 +123,7 @@ docker compose up -d
 docker logs -f nvidia-stock-bot
 ```
 
-## Installation avec Python
+## 🐍 Installation avec Python
 
 Vous trouverez ci-dessous comment exécuter directement le script Python. Avec cette solution, le bot s'arretera si vous fermez votre terminal.
 
@@ -158,13 +158,13 @@ Vous trouverez ci-dessous comment exécuter directement le script Python. Avec c
   python nvidia-stock-bot.py
   ```
 
-## Captures d'écran
+## 🖼️ Captures d'écran
 
   <div align="center" >
     <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - captures">
 </div>
 
-## Contributeurs
+## 🧑‍💻 Contributeurs
 
 On remercie pour leurs contributions :
 

@@ -22,6 +22,7 @@ try:
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
     PRODUCT_NAME = os.environ.get('PRODUCT_NAME')
     
+    # Logging des erreurs
     if not DISCORD_WEBHOOK_URL:
         logging.error("❌ DISCORD_WEBHOOK_URL est requis mais non défini.")
         exit(1)
@@ -45,6 +46,7 @@ try:
         # Reconstruction de l'url masquée
         wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
 
+# Logging des erreurs
 except KeyError as e:
     logging.error(f"Variable d'environnement manquante : {e}")
     exit(1)

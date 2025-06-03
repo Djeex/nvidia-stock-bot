@@ -12,5 +12,5 @@ services:
       - API_URL_STOCK=${API_URL_STOCK}
       - PRODUCT_URL=${PRODUCT_URL}
       - PRODUCT_NAME=${PRODUCT_NAME}
-      - PYTHONUNBUFFERED=1 # Permet d'afficher les logs en temps réel
-    command: python nvidia-stock-bot.py # Lance le script Python
+      - PYTHONUNBUFFERED=1 # Allow to display log in real-time
+    command: python nvidia-stock-bot.py # Run the script

@@ -31,8 +31,6 @@
 - Selectable check frequency
 - Selectable GPU model
 
-<img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvbot_schematics.png" align="center">
-
 ## 🐳 Docker Installation without the repo (quick)
 
 Below are the instructions to set up the container using our pre-built image. With this setup, your bot will run independently as long as the container is active.

@@ -5,14 +5,14 @@ import os
 import re
 from requests.adapters import HTTPAdapter, Retry
 
-# Configuration du logger
+# Logger configuration
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-logging.info("Démarrage du script")
+logging.info("Script started")
 
-# Récupération des variables d'environnement
+# Retrieve environment variables
 try:
     DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
     API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
@@ -22,49 +22,48 @@ try:
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
     PRODUCT_NAME = os.environ.get('PRODUCT_NAME')
     
-    # Logging des erreurs
+    # Error logging
     if not DISCORD_WEBHOOK_URL:
-        logging.error("❌ DISCORD_WEBHOOK_URL est requis mais non défini.")
+        logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
         exit(1)
 
     if not PRODUCT_NAME:
-        logging.error("❌ PRODUCT_NAME est requis mais non défini.")
+        logging.error("❌ PRODUCT_NAME is required but not defined.")
         exit(1)
 
-    # Regex pour extraire l'ID et le token
+    # Regex to extract ID and token
     match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
     if match:
         webhook_id = match.group(1)
         webhook_token = match.group(2)
 
-        # Masquer derniers caractères de l'ID
+        # Mask last characters of the ID
         masked_webhook_id = webhook_id[:len(webhook_id) - 10] + '*' * 10
 
-        # Masquer derniers caractères du token
+        # Mask last characters of the token
         masked_webhook_token = webhook_token[:len(webhook_token) - 120] + '*' * 10
 
-        # Reconstruction de l'url masquée
+        # Rebuild masked URL
         wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
 
-# Logging des erreurs
+# Error logging
 except KeyError as e:
-    logging.error(f"Variable d'environnement manquante : {e}")
+    logging.error(f"Missing environment variable: {e}")
     exit(1)
 except ValueError:
-    logging.error("REFRESH_TIME doit être un entier valide.")
+    logging.error("REFRESH_TIME must be a valid integer.")
     exit(1)
 
-# Affichage des URLs et configurations
+# Display URLs and configurations
 logging.info(f"GPU: {PRODUCT_NAME}")
-logging.info(f"URL Webhook Discord: {wh_masked_url}")
-logging.info(f"URL API SKU: {API_URL_SKU}")
-logging.info(f"URL API Stock: {API_URL_STOCK}")
-logging.info(f"URL produit: {PRODUCT_URL}")
-logging.info(f"Temps d'actualisation: {REFRESH_TIME} secondes")
-logging.info(f"Mode Test: {TEST_MODE}")
+logging.info(f"Discord Webhook URL: {wh_masked_url}")
+logging.info(f"API URL SKU: {API_URL_SKU}")
+logging.info(f"API URL Stock: {API_URL_STOCK}")
+logging.info(f"Product URL: {PRODUCT_URL}")
+logging.info(f"Refresh time: {REFRESH_TIME} seconds")
+logging.info(f"Test Mode: {TEST_MODE}")
 
-
-# Entêtes HTTP
+# HTTP headers
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -83,30 +82,30 @@ HEADERS = {
     "Sec-GPC": "1",
 }
 
-# Session avec retries
+# Session with retries
 session = requests.Session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
-# Stockage de l'état des stocks
+# Store stock status
 global_stock_status = {}
 
-# Stocke le dernier SKU connu
+# Store the last known SKU
 last_sku = None
 first_run = True  # Before calling check_rtx_50_founders
 
-# Notifications Discord
+# Discord notifications
 def send_discord_notification(gpu_name: str, product_link: str, products_price: str):
     
-    # Récupérer le timestamp UNIX actuel
+    # Get current UNIX timestamp
     timestamp_unix = int(time.time())
 
     if TEST_MODE:
-        logging.info(f"[TEST MODE] Notification Discord: {gpu_name} disponible !")
+        logging.info(f"[TEST MODE] Discord Notification: {gpu_name} available!")
         return
     
     embed = {
-        "title": f"🚀 {PRODUCT_NAME} EN STOCK !",
+        "title": f"🚀 {PRODUCT_NAME} IN STOCK!",
         "color": 3066993,
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
@@ -117,18 +116,18 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
 
         "fields": [
             {
-            "name": "Prix",
+            "name": "Price",
             "value": f"`{products_price}€`",
             "inline": True
             },
 
             {
-            "name": "Heure",
+            "name": "Time",
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             },
         ],
-        "description": f"**:point_right: [Acheter maintenant]({product_link})**",
+        "description": f"**:point_right: [Buy now]({product_link})**",
         "footer": {
             "text": "NviBot • JV Hardware 2.0",
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
@@ -138,24 +137,24 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
-            logging.info("✅ Notification envoyée sur Discord.")
+            logging.info("✅ Notification sent to Discord.")
         else:
-            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
+            logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
-        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
+        logging.error(f"🚨 Error sending webhook: {e}")
 
 def send_out_of_stock_notification(gpu_name: str, product_link: str, products_price: str):
     
-    # Récupérer le timestamp UNIX actuel
+    # Get current UNIX timestamp
     timestamp_unix = int(time.time())
 
     if TEST_MODE:
-        logging.info(f"[TEST MODE] Notification Discord: {gpu_name} hors stock !")
+        logging.info(f"[TEST MODE] Discord Notification: {gpu_name} out of stock!")
         return
     
     embed = {
-        "title": f"❌ {PRODUCT_NAME} n'est plus en stock",
-        "color": 15158332,  # Rouge pour hors stock
+        "title": f"❌ {PRODUCT_NAME} is out of stock",
+        "color": 15158332,  # Red for out of stock
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
         },
@@ -171,7 +170,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
 
         "fields": [
             {
-            "name": "Heure",
+            "name": "Time",
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             }
@@ -181,26 +180,26 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
-            logging.info("✅ Notification 'hors stock' envoyée sur Discord.")
+            logging.info("✅ 'Out of stock' notification sent to Discord.")
         else:
-            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
+            logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
-        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
+        logging.error(f"🚨 Error sending webhook: {e}")
 
 def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     
-    # Récupérer le timestamp UNIX actuel
+    # Get current UNIX timestamp
     timestamp_unix = int(time.time())
 
     if TEST_MODE:
-        logging.info(f"[TEST MODE] Changement de SKU détecté : {old_sku} → {new_sku}")
+        logging.info(f"[TEST MODE] SKU change detected: {old_sku} → {new_sku}")
         return
 
     embed = {
-        "title": f"🔄 {PRODUCT_NAME} Changement de SKU détecté",
+        "title": f"🔄 {PRODUCT_NAME} SKU change detected",
         "url": f"{product_link}",
-        "description": f"**Ancien SKU** : `{old_sku}`\n**Nouveau SKU** : `{new_sku}`",
-        "color": 16776960,  # Jaune
+        "description": f"**Old SKU** : `{old_sku}`\n**New SKU** : `{new_sku}`",
+        "color": 16776960,  # Yellow
 
         "footer": {
             "text": "NviBot • JV Hardware 2.0",
@@ -209,7 +208,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
 
         "fields": [
             {
-            "name": "Heure",
+            "name": "Time",
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             }
@@ -217,7 +216,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     }
     
     payload = {
-        "content": "@everyone ⚠️ Potentiel drop imminent !",
+        "content": "@everyone ⚠️ Possible imminent drop!",
         "username": "NviBot",
         "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
         "embeds": [embed]
@@ -226,90 +225,88 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
-            logging.info("✅ Notification de changement de SKU envoyée sur Discord.")
+            logging.info("✅ SKU change notification sent to Discord.")
         else:
-            logging.error(f"❌ Erreur Webhook : {response.status_code} - {response.text}")
+            logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
-        logging.error(f"🚨 Erreur lors de l'envoi du webhook : {e}")
+        logging.error(f"🚨 Error sending webhook: {e}")
 
-# Recherche du stock
+# Stock search
 def check_rtx_50_founders():
     global global_stock_status, last_sku, first_run
 
-    # Appel vers l'API produit pour récupérer le sku et l'upc
-
+    # Call product API to retrieve SKU and UPC
     try:
         response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
-        logging.info(f"Réponse de l'API SKU : {response.status_code}")
+        logging.info(f"SKU API response: {response.status_code}")
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Erreur API SKU : {e}")
+        logging.error(f"SKU API error: {e}")
         return
 
-   # Recherche du produit dont le GPU correspond à PRODUCT_NAME
+   # Look for product whose GPU matches PRODUCT_NAME
     product_details = None
 
     for p in data['searchedProducts']['productDetails']:
         gpu_name = p.get("gpu", "").strip()
         
-        # Si le GPU correspond exactement à PRODUCT_NAME
+        # If the GPU matches exactly PRODUCT_NAME
         if gpu_name == PRODUCT_NAME.strip():
             product_details = p
-            break  # Sortir dès qu'on trouve le bon produit
+            break  # Exit as soon as the correct product is found
 
     if not product_details:
-        logging.warning(f"⚠️ Aucun produit avec le GPU '{PRODUCT_NAME}' trouvé.")
+        logging.warning(f"⚠️ No product with GPU '{PRODUCT_NAME}' found.")
         return
 
-    # Récupérer le SKU pour le GPU trouvé
+    # Retrieve the SKU for the found GPU
     product_sku = product_details['productSKU']
     product_upc = product_details.get('productUPC', "")
 
-
-    # Vérifier si c'est la première exécution
+    # Check if this is the first execution
     if last_sku is not None and product_sku != last_sku:
-        if not first_run:  # Évite d'envoyer une notification au premier appel
+        if not first_run:  # Prevent sending notification on first run
             product_link = PRODUCT_URL
-            logging.warning(f"⚠️ SKU modifié : {last_sku} → {product_sku}")
+            logging.warning(f"⚠️ SKU changed: {last_sku} → {product_sku}")
             send_sku_change_notification(last_sku, product_sku, product_link)
 
-    # Mettre à jour le SKU stocké
+    # Update stored SKU
     last_sku = product_sku
-    first_run = False  # Désactive la protection après la première exécution
+    first_run = False  # Disable first-run protection
 
     if not isinstance(product_upc, list):
         product_upc = [product_upc]
     
-    # Construction de l'url de l'API de stock et appel pour vérifier le statut
+    # Build stock API URL and call to check status
     API_URL = API_URL_STOCK + product_sku
-    logging.info(f"URL de l'API de stock appelée : {API_URL}")
+    logging.info(f"Stock API URL called: {API_URL}")
     
     try:
         response = session.get(API_URL, headers=HEADERS, timeout=10)
-        logging.info(f"Réponse de l'API : {response.status_code}")  
+        logging.info(f"Stock API response: {response.status_code}")  
         response.raise_for_status()
         data = response.json()
     except requests.exceptions.RequestException as e:
-        logging.error(f"Erreur API Stock : {e}")
+        logging.error(f"Stock API error: {e}")
         return
 
     products = data.get("listMap", [])
-    products_price = 'Prix non disponible'  # Valeur par défaut
+    products_price = 'Price not available'  # Default value
 
-    # Vérification de la liste des produits et récupération du prix
+    # Check product list and retrieve price
     if isinstance(products, list) and len(products) > 0:
         for product in products:
-            price = product.get("price", 'Prix non disponible')
-            if price != 'Prix non disponible':
-                products_price = price  # Utiliser le prix trouvé
-                break  # Sortir dès qu'on trouve un prix
+            price = product.get("price", 'Price not available')
+            if price != 'Price not available':
+                products_price = price  # Use found price
+                break  # Stop at first found price
     else:
-        logging.error("La liste des produits est vide ou mal formée.")
+        logging.error("Product list is empty or malformed.")
 
     found_in_stock = set()
 
-    # Recherche du statut et notifications selon le statut
+    # Check status and send notifications accordingly
     for p in products:
         gpu_name = p.get("fe_sku", "").upper()
         is_active = p.get("is_active") == "true"
@@ -325,20 +322,18 @@ def check_rtx_50_founders():
             product_link = PRODUCT_URL
             send_discord_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = True
-            logging.info(f"{gpu} est maintenant en stock!")
+            logging.info(f"{gpu} is now in stock!")
         elif not currently_in_stock and previously_in_stock:
             product_link = PRODUCT_URL
             send_out_of_stock_notification(gpu_upper, product_link, products_price)
             global_stock_status[gpu_upper] = False
-            logging.info(f"{gpu} n'est plus en stock.")
-
+            logging.info(f"{gpu} is no longer in stock.")
         elif currently_in_stock and previously_in_stock:
-            logging.info(f"{gpu} est actuellement en stock.")
-            
+            logging.info(f"{gpu} is currently in stock.")
         else:
-            logging.info(f"{gpu} est actuellement hors stock.")
+            logging.info(f"{gpu} is currently out of stock.")
 
-# Boucle
+# Loop
 if __name__ == "__main__":
     while True:
         check_rtx_50_founders()

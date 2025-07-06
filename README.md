@@ -12,7 +12,10 @@
 
 **🤖 Nvidia Stock Bot** - A bot that alerts you in real-time about **Nvidia RTX FE** GPU stock availability through Discord notifications.
 
-*The code was partially written and structured using a generative AI.*
+> [!NOTE]
+>_The code was partially written and structured using a generative AI._
+>
+>_Github repo is a mirror of https://git.djeex.fr/Djeex/nvidia-stock-bot. You'll find full package, history and release note there._
 
 ## 📌 Table of Contents
 

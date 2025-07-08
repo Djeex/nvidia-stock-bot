@@ -15,24 +15,38 @@ logging.info("Script started")
 # Retrieve environment variables
 try:
     DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
-    DISCORD_ROLE = os.environ.get('DISCORD_ROLE', '@everyone').strip()
     API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
     API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
     REFRESH_TIME = int(os.environ.get('REFRESH_TIME'))
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
+    DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
     PRODUCT_NAMES = os.environ.get('PRODUCT_NAMES')
-
-    # Errors logging
+    
     if not PRODUCT_NAMES:
         logging.error("❌ PRODUCT_NAMES is required but not defined.")
         exit(1)
-
+        
     PRODUCT_NAMES = [name.strip() for name in PRODUCT_NAMES.split(',')]
+    DISCORD_ROLE_MAP = {}
 
-    if DISCORD_ROLE != '@everyone' and not re.match(r'^<@&\d{17,20}>$', DISCORD_ROLE):
-        logging.error("❌ DISCORD_ROLE format is invalid. Use '@everyone' or '<@&ROLE_ID>'.")
-        exit(1)
+    if not DISCORD_ROLES or not DISCORD_ROLES.strip():
+        logging.warning("⚠️ DISCORD_ROLES not defined or empty. Defaulting all roles to @everyone.")
+        for name in PRODUCT_NAMES:
+            DISCORD_ROLE_MAP[name] = '@everyone'
+    else:
+        roles = [r.strip() if r.strip() else '@everyone' for r in DISCORD_ROLES.split(',')]
+
+        if len(roles) != len(PRODUCT_NAMES):
+            logging.error("❌ The number of DISCORD_ROLES must match PRODUCT_NAMES.")
+            exit(1)
+
+        for name, role in zip(PRODUCT_NAMES, roles):
+            if role != '@everyone' and not re.match(r'^<@&\d{17,20}>$', role):
+                logging.error(f"❌ Invalid DISCORD_ROLE format for {name}: {role}")
+                exit(1)
+            DISCORD_ROLE_MAP[name] = role
+
 
     if not DISCORD_WEBHOOK_URL:
         logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
@@ -64,7 +78,7 @@ except ValueError:
 # Display URLs and configurations
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
-logging.info(f"Discord Role Mention: {DISCORD_ROLE}")
+logging.info(f"Discord Role Mention: {DISCORD_ROLES}")
 logging.info(f"API URL SKU: {API_URL_SKU}")
 logging.info(f"API URL Stock: {API_URL_STOCK}")
 logging.info(f"Product URL: {PRODUCT_URL}")
@@ -138,7 +152,14 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         }
     }
-    payload = {"content": f"{DISCORD_ROLE}", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg", "embeds": [embed]}
+
+    payload = {
+        "content": f"{DISCORD_ROLE_MAP.get(gpu_name, '@everyone')}",
+        "username": "NviBot",
+        "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
+        "embeds": [embed]
+    }
+
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
@@ -191,7 +212,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
 
-def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
+def send_sku_change_notification(gpu_name: str, old_sku: str, new_sku: str, product_link: str):
     
     # Get current UNIX timestamp
     timestamp_unix = int(time.time())
@@ -221,7 +242,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     }
     
     payload = {
-        "content": f"{DISCORD_ROLE} ⚠️ Possible imminent drop!",
+        "content": f"{DISCORD_ROLE_MAP.get(gpu_name, '@everyone')} ⚠️ Possible imminent drop!",
         "username": "NviBot",
         "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
         "embeds": [embed]
@@ -272,7 +293,7 @@ def check_rtx_50_founders():
         old_sku = last_sku_dict.get(product_name)
         if old_sku and old_sku != product_sku and not first_run_dict[product_name]:
             logging.warning(f"⚠️ SKU changed for {product_name}: {old_sku} → {product_sku}")
-            send_sku_change_notification(old_sku, product_sku, PRODUCT_URL)
+            send_sku_change_notification(product_name, old_sku, product_sku, PRODUCT_URL)
 
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False

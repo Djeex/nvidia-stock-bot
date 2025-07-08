@@ -51,8 +51,9 @@ services:
     container_name: nvidia-stock-bot
     restart: unless-stopped
     environment:
+      - PRODUCT_NAMES=       # Exact GPU name (e.g. "RTX 5080, RTX 5090")
+      - DISCORD_ROLES=       # List of Discord roles ID (e.g. "<@&12345>, <@&6789>"), in the same order than PRODUCT_NAMES values. @everyone by default.
       - DISCORD_WEBHOOK_URL= # Your Discord webhook URL
-      - PRODUCT_NAME=        # Exact GPU name like "RTX 5080"
       - API_URL_SKU=         # API listing the product
       - API_URL_STOCK=       # API providing stock data
       - PRODUCT_URL=         # GPU purchase URL
@@ -65,15 +66,15 @@ services:
 
 | Variable            | Description                                     | Possible Values                                                  | Default Value                                                                                              |
 |---------------------|-------------------------------------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
-| DISCORD_WEBHOOK_URL | Your Discord webhook URL                        | A valid URL                                                      |                                                                                                             |
-| DISCORD_ROLE | Role ID, found in your discord server settings (with developer mode enabled)                         | <@&123456789>                                                      | @everyone                                                                                                            |
-| REFRESH_TIME        | Script refresh interval in seconds              | `60`, `30`, etc.                                                 | `30`                                                                                                        |
-| API_URL_SKU         | API listing the product                         | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `locale=en-gb`)                                                            | `https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia`         |
-| API_URL_STOCK       | API providing stock data                        | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `locale=en-gb`)                                                                  | `https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=`                                    |
-| PRODUCT_URL         | GPU purchase URL                                | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `/en-gb/`)                                                                  | `https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA` |
-| PRODUCT_NAME        | The exact GPU name you're searching for         | `RTX 5090`, `RTX 5080`, `RTX 5070`                               |                                                                                                             |
-| TEST_MODE           | For testing without sending notifications       | `True`, `False`                                                  | `False`                                                                                                     |
-| PYTHONUNBUFFERED    | Enables real-time log output                    | `1`, `0`                                                         | `1`                                                                                                         |
+| `DISCORD_WEBHOOK_URL` | Your Discord webhook URL                        | A valid URL                                                      |                                                                                                             |
+| `PRODUCT_NAMES`        | The exact GPU names you're searching for         | `RTX 5080, RTX 5090`                             |                                                                                                             |
+| `DISCORD_ROLE>` | List of Discord roles ID in the same order than `PRODUCT_NAMES` values, found in your discord server settings (with user profile developer mode enabled)                         | `<@&12345><@&6789>`                                                    | @everyone                                                                                                            |
+| `REFRESH_TIME`        | Script refresh interval in seconds              | `60`, `30`, etc.                                                 | `30`                                                                                                        |
+| `API_URL_SKU`         | API listing the product                         | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `locale=en-gb`)                                                            | `https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia`         |
+| `API_URL_STOCK`       | API providing stock data                        | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `locale=en-gb`)                                                                  | `https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=`                                    |
+| `PRODUCT_URL`         | GPU purchase URL                                | A URL. API url can change over time. For now, you can use the default one and change the `locale` parameter to yours (for exemple : `/en-gb/`)                                                                  | `https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA` |
+| `TEST_MODE`           | For testing without sending notifications       | `True`, `False`                                                  | `False`                                                                                                     |
+| `PYTHONUNBUFFERED`    | Enables real-time log output                    | `1`, `0`                                                         | `1`                                                                                                         |
 
 **Run the image**
 
@@ -147,12 +148,12 @@ git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
 
 ```sh
 export DISCORD_WEBHOOK_URL="https://your_discord_url"
-export DISCORD_ROLE="<@&123456789>"
+export PRODUCT_NAMES=RTX 5080, RTX 5090
+export DISCORD_ROLES=<@&12345>, <@&6789>
 export REFRESH_TIME="60"
 export API_URL_SKU="https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205080"
 export API_URL_STOCK="https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus="
 export PRODUCT_URL="https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205080&manufacturer=NVIDIA"
-export PRODUCT_NAME="RTX 5080"
 export TEST_MODE=false
 export PYTHONUNBUFFERED=1
 ```
@@ -168,6 +169,13 @@ python nvidia-stock-bot.py
 <div align="center" >
   <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - screenshots">
 </div>
+
+## Common issues
+
+Error when trying to reach product API url :
+- `API_SKU_URL` may be wrong
+- Your IP may be blacklisted by nvidia. Try to use a VPN.
+- nvidia API may be down
 
 ## 🧑‍💻 Contributors
 

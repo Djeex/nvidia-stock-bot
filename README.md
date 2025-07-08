@@ -17,12 +17,13 @@
 
 ## 📌 Table of Contents
 
-- [✨ Features](#features)
-- [🐳 Docker Installation without cloning the repo (quick)](#docker-installation-without-the-repo-quick)
-- [🐙 Docker Installation with the repo (developer)](#docker-installation-with-the-repo)
-- [🐍 Python Installation (developer)](#python-installation)
-- [🖼️ Screenshots](#screenshots)
-- [🧑‍💻 Contributors](#contributors)
+- [✨ Features](#-features)
+- [🐳 Docker Installation without cloning the repo (quick)](#-docker-installation-without-the-repo-quick)
+- [🐙 Docker Installation with the repo (developer)](#-docker-installation-with-the-repo)
+- [🐍 Python Installation (developer)](#-python-installation)
+- [🖼️ Screenshots](#-screenshots)
+- [🐞 Screenshots](#-common-issues)
+- [🧑‍💻 Contributors](#-contributors)
 
 ## ✨ Features
 
@@ -170,7 +171,7 @@ python nvidia-stock-bot.py
   <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - screenshots">
 </div>
 
-## Common issues
+## 🐞 Common issues
 
 Error when trying to reach product API url :
 - `API_SKU_URL` may be wrong

@@ -15,13 +15,19 @@ logging.info("Script started")
 # Retrieve environment variables
 try:
     DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
+    DISCORD_ROLE = os.environ.get('DISCORD_ROLE', '@everyone').strip()
     API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
     API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
     REFRESH_TIME = int(os.environ.get('REFRESH_TIME'))
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
     PRODUCT_NAME = os.environ.get('PRODUCT_NAME')
-    
+
+    # Validate role format
+    if DISCORD_ROLE != '@everyone' and not re.match(r'^<@&\d{17,20}>$', DISCORD_ROLE):
+        logging.error("❌ DISCORD_ROLE format is invalid. Use '@everyone' or '<@&ROLE_ID>'.")
+        exit(1)
+
     # Error logging
     if not DISCORD_WEBHOOK_URL:
         logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
@@ -57,6 +63,7 @@ except ValueError:
 # Display URLs and configurations
 logging.info(f"GPU: {PRODUCT_NAME}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
+logging.info(f"Discord Role Mention: {DISCORD_ROLE}")
 logging.info(f"API URL SKU: {API_URL_SKU}")
 logging.info(f"API URL Stock: {API_URL_STOCK}")
 logging.info(f"Product URL: {PRODUCT_URL}")
@@ -133,7 +140,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         }
     }
-    payload = {"content": "@everyone", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg", "embeds": [embed]}
+    payload = {"content": f"{DISCORD_ROLE}", "username": "NviBot", "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg", "embeds": [embed]}
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
         if response.status_code == 204:
@@ -216,7 +223,7 @@ def send_sku_change_notification(old_sku: str, new_sku: str, product_link: str):
     }
     
     payload = {
-        "content": "@everyone ⚠️ Possible imminent drop!",
+        "content": f"{DISCORD_ROLE} ⚠️ Possible imminent drop!",
         "username": "NviBot",
         "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
         "embeds": [embed]
@@ -338,3 +345,8 @@ if __name__ == "__main__":
     while True:
         check_rtx_50_founders()
         time.sleep(REFRESH_TIME)
+        
+# Gracefully shut down        
+except KeyboardInterrupt:
+    logging.info("🛑 Script interrupted by user. Exiting gracefully.")
+    exit(0)

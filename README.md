@@ -53,6 +53,10 @@ services:
     environment:
       - DISCORD_WEBHOOK_URL= # Your Discord webhook URL
       - PRODUCT_NAME=        # Exact GPU name like "RTX 5080"
+      - API_URL_SKU=         # API listing the product
+      - API_URL_STOCK=       # API providing stock data
+      - PRODUCT_URL=         # GPU purchase URL
+
       - PYTHONUNBUFFERED=1   # Enables real-time log output
     command: python nvidia-stock-bot.py
 ```
@@ -133,24 +137,23 @@ Instructions to directly run the Python script. Note: the bot stops when you clo
 
 **Configuration**
 
-- Create a virtual environment (e.g., `python3 -m venv env_name`)
-- Create and navigate into a folder
-- Download the Python script:
-
-```sh
-curl -o nvidia-stock-bot.py -# https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/nvidia-stock-bot.py
-```
-
-- Export the environment variables with your webhook and refresh time:
+- Clone the repo:
+  ```sh
+  git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
+  ```
+- Navigate to `nvidia-stock-bot` and create a virtual environment (e.g., `python3 -m venv env_name`)
+- Export the environment variables with your webhook and refresh time, for exemple:
 
 ```sh
 export DISCORD_WEBHOOK_URL="https://your_discord_url"
+export DISCORD_ROLE="<@&123456789>"
 export REFRESH_TIME="60"
 export API_URL_SKU="https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia&gpu=RTX%205080"
 export API_URL_STOCK="https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus="
 export PRODUCT_URL="https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&gpu=RTX%205080&manufacturer=NVIDIA"
 export PRODUCT_NAME="RTX 5080"
 export TEST_MODE=false
+export PYTHONUNBUFFERED=1
 ```
 
 - Run the script

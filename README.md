@@ -22,7 +22,7 @@
 - [🐙 Docker Installation with the repo (developer)](#-docker-installation-with-the-repo)
 - [🐍 Python Installation (developer)](#-python-installation)
 - [🖼️ Screenshots](#-screenshots)
-- [🐞 Screenshots](#-common-issues)
+- [🐞 Common issues](#-common-issues)
 - [🧑‍💻 Contributors](#-contributors)
 
 ## ✨ Features

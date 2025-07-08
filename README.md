@@ -138,9 +138,10 @@ Instructions to directly run the Python script. Note: the bot stops when you clo
 **Configuration**
 
 - Clone the repo:
-  ```sh
-  git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
-  ```
+
+```sh
+git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
+```
 - Navigate to `nvidia-stock-bot` and create a virtual environment (e.g., `python3 -m venv env_name`)
 - Export the environment variables with your webhook and refresh time, for exemple:
 

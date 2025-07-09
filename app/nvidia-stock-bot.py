@@ -3,6 +3,7 @@ import logging
 import time
 import os
 import re
+import json
 from requests.adapters import HTTPAdapter, Retry
 
 # Logger configuration
@@ -15,6 +16,7 @@ logging.info("Script started")
 # Retrieve environment variables
 try:
     DISCORD_WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK_URL')
+    DISCORD_SERVER_NAME = os.environ.get('DISCORD_SERVER_NAME', 'Shared for free')
     API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
     API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
     REFRESH_TIME = int(os.environ.get('REFRESH_TIME'))
@@ -75,6 +77,36 @@ except ValueError:
     logging.error("REFRESH_TIME must be a valid integer.")
     exit(1)
 
+# Localization
+try:
+    with open("localization.json", "r", encoding="utf-8") as f:
+        localization = json.load(f)
+except FileNotFoundError:
+    logging.error("❌ localization.json file not found.")
+    exit(1)
+
+language = os.environ.get("DISCORD_NOTIFICATION_LANGUAGE", "en").lower()
+loc = localization.get(language, localization["en"])
+
+if language not in localization:
+    logging.warning(f"⚠️ Language '{language}' not found. Falling back to English.")
+
+in_stock_title = loc["in_stock_title"]
+out_of_stock_title = loc["out_of_stock_title"]
+sku_change_title = loc["sku_change_title"]
+buy_now = loc["buy_now"]
+price_label = loc["price"]
+time_label = loc["time"]
+footer = loc["footer"]
+sku_description = loc["sku_description"]
+imminent_drop = loc["imminent_drop"]
+
+required_keys = ["in_stock_title", "out_of_stock_title", "sku_change_title", "buy_now", "price", "time", "footer", "sku_description", "imminent_drop"]
+for key in required_keys:
+    if key not in loc:
+        logging.error(f"❌ Missing localization key: '{key}' in language '{language}'")
+        exit(1)
+
 # Display URLs and configurations
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
@@ -124,7 +156,7 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
         return
     
     embed = {
-        "title": f"🚀 {gpu_name} IN STOCK!",
+        "title": in_stock_title.format(gpu_name=gpu_name),
         "color": 3066993,
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
@@ -135,20 +167,20 @@ def send_discord_notification(gpu_name: str, product_link: str, products_price: 
 
         "fields": [
             {
-            "name": "Price",
+            "name": price_label,
             "value": f"`{products_price}€`",
             "inline": True
             },
 
             {
-            "name": "Time",
+            "name": time_label,
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             },
         ],
-        "description": f"**:point_right: [Buy now]({product_link})**",
+        "description": buy_now.format(product_link=product_link),
         "footer": {
-            "text": "NviBot • JV Hardware 2.0",
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         }
     }
@@ -179,7 +211,7 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
         return
     
     embed = {
-        "title": f"❌ {gpu_name} is out of stock",
+        "title": out_of_stock_title.format(gpu_name=gpu_name),
         "color": 15158332,  # Red for out of stock
         "thumbnail": {
             "url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
@@ -190,13 +222,13 @@ def send_out_of_stock_notification(gpu_name: str, product_link: str, products_pr
         },
         
         "footer": {
-            "text": "NviBot • JV Hardware 2.0",
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         },
 
         "fields": [
             {
-            "name": "Time",
+            "name": time_label,
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             }
@@ -222,19 +254,19 @@ def send_sku_change_notification(gpu_name: str, old_sku: str, new_sku: str, prod
         return
 
     embed = {
-        "title": f"🔄 {gpu_name} SKU change detected",
+        "title": sku_change_title.format(gpu_name=gpu_name),
         "url": f"{product_link}",
-        "description": f"**Old SKU** : `{old_sku}`\n**New SKU** : `{new_sku}`",
+        "description": sku_description.format(old_sku=old_sku, new_sku=new_sku),
         "color": 16776960,  # Yellow
 
         "footer": {
-            "text": "NviBot • JV Hardware 2.0",
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
             "icon_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
         },
 
         "fields": [
             {
-            "name": "Time",
+            "name": time_label,
             "value": f"<t:{timestamp_unix}:d> <t:{timestamp_unix}:T>",
             "inline": True
             }
@@ -242,7 +274,7 @@ def send_sku_change_notification(gpu_name: str, old_sku: str, new_sku: str, prod
     }
     
     payload = {
-        "content": f"{DISCORD_ROLE_MAP.get(gpu_name, '@everyone')} ⚠️ Possible imminent drop!",
+        "content": imminent_drop,
         "username": "NviBot",
         "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
         "embeds": [embed]

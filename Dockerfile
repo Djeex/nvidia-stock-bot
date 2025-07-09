@@ -4,9 +4,11 @@ RUN apk add --no-cache ca-certificates
 
 WORKDIR /app
 
-COPY nvidia-stock-bot.py /app/
+COPY app/nvidia-stock-bot.py /app/
 
-COPY requirements.txt /app/
+COPY app/requirements.txt /app/
+
+COPY app/localization.json /app/
 
 RUN pip install --no-cache-dir -r requirements.txt
 

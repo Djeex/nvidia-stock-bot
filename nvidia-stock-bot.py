@@ -350,8 +350,10 @@ def check_rtx_50_founders():
 if __name__ == "__main__":
     try:
         while True:
+            start = time.time()
             check_rtx_50_founders()
-            time.sleep(REFRESH_TIME)
+            elapsed = time.time() - start
+            time.sleep(max(0, REFRESH_TIME - elapsed))
 
     # Gracefully shut down        
     except KeyboardInterrupt:

@@ -58,7 +58,6 @@ services:
       - API_URL_SKU=         # API listing the product
       - API_URL_STOCK=       # API providing stock data
       - PRODUCT_URL=         # GPU purchase URL
-
       - PYTHONUNBUFFERED=1   # Enables real-time log output
     command: python nvidia-stock-bot.py
 ```

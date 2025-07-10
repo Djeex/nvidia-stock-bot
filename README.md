@@ -54,7 +54,6 @@ services:
     environment:
     # Minimal environment variables
       - PRODUCT_NAMES=       # Exact GPU name (e.g. "RTX 5080, RTX 5090")
-      - DISCORD_ROLES=       # List of Discord roles ID (e.g. "<@&12345>, <@&6789>"), in the same order than PRODUCT_NAMES values. @everyone by default.
       - DISCORD_WEBHOOK_URL= # Your Discord webhook URL
       - API_URL_SKU=         # API listing the product for your country
       - API_URL_STOCK=       # API providing stock data for your country

@@ -27,11 +27,13 @@
 
 ## ✨ Features
 
-- Discord `@everyone` notification on SKU change (possible imminent drop)
-- Discord `@everyone` notification when stock is detected, including model, price, and link
+- Selectable GPU models
+- Discord `@everyone` or specified role on SKU change (possible imminent drop)
+- Discord `@everyone` or specified role notification when stock is detected, including model, price, and link
 - Silent Discord notification when no stock is detected
+- Selectable notification language
+- Selectable notification server name in footer
 - Selectable check frequency
-- Selectable GPU model
 
 ## 🐳 Docker Installation without the repo (quick)
 

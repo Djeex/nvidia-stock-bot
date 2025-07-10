@@ -86,10 +86,34 @@ except FileNotFoundError:
     exit(1)
 
 language = os.environ.get("DISCORD_NOTIFICATION_LANGUAGE", "en").lower()
+required_keys = [
+    "in_stock_title", "out_of_stock_title", "sku_change_title",
+    "buy_now", "price", "time", "footer",
+    "sku_description", "imminent_drop"
+]
 loc = localization.get(language, localization["en"])
+logging.info(f"Notification language: {language}")
 
-if language not in localization:
+if not loc:
     logging.warning(f"⚠️ Language '{language}' not found. Falling back to English.")
+    loc = localization.get("en")
+    language = "en"
+
+if not loc:
+    logging.error("❌ No localization found for language 'en'. Cannot continue.")
+    sys.exit(1)
+fallback = localization.get("en", {})
+missing_keys = [key for key in required_keys if key not in loc]
+
+if missing_keys:
+    logging.warning(f"⚠️ Missing keys in localization for '{language}': {', '.join(missing_keys)}. Falling back to English for those.")
+
+    for key in missing_keys:
+        if key in fallback:
+            loc[key] = fallback[key]
+        else:
+            logging.error(f"❌ Missing required key '{key}' in both '{language}' and fallback 'en'.")
+            sys.exit(1)
 
 in_stock_title = loc["in_stock_title"]
 out_of_stock_title = loc["out_of_stock_title"]
@@ -100,12 +124,6 @@ time_label = loc["time"]
 footer = loc["footer"]
 sku_description = loc["sku_description"]
 imminent_drop = loc["imminent_drop"]
-
-required_keys = ["in_stock_title", "out_of_stock_title", "sku_change_title", "buy_now", "price", "time", "footer", "sku_description", "imminent_drop"]
-for key in required_keys:
-    if key not in loc:
-        logging.error(f"❌ Missing localization key: '{key}' in language '{language}'")
-        exit(1)
 
 # Display URLs and configurations
 logging.info(f"GPU: {PRODUCT_NAMES}")
@@ -274,7 +292,7 @@ def send_sku_change_notification(gpu_name: str, old_sku: str, new_sku: str, prod
     }
     
     payload = {
-        "content": imminent_drop,
+        "content": imminent_drop.format(DISCORD_ROLE=DISCORD_ROLE_MAP.get(gpu_name, '@everyone')),
         "username": "NviBot",
         "avatar_url": "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg",
         "embeds": [embed]

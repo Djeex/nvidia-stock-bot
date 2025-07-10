@@ -8,7 +8,7 @@
     "time": "Time",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Old SKU** : `{old_sku}`\n**New SKU** : `{new_sku}`",
-    "imminent_drop": "⚠️ Possible imminent drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possible imminent drop!"
   },
   "bg": {
     "in_stock_title": "🚀 {gpu_name} ИМА НАЛИЧНОСТ!",
@@ -19,7 +19,7 @@
     "time": "Час",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Стар SKU**: `{old_sku}`\n**Нов SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Възможен наближаващ спад!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Възможен наближаващ спад!"
   },
   "cs": {
     "in_stock_title": "🚀 {gpu_name} SKLADEM!",
@@ -30,7 +30,7 @@
     "time": "Čas",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Starý SKU**: `{old_sku}`\n**Nový SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Možný blížící se pokles!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možný blížící se pokles!"
   },
   "da": {
     "in_stock_title": "🚀 {gpu_name} PÅ LAGER!",
@@ -41,7 +41,7 @@
     "time": "Tid",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Gammelt SKU**: `{old_sku}`\n**Nyt SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Muligt snarligt drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Muligt snarligt drop!"
   },
   "de": {
     "in_stock_title": "🚀 {gpu_name} AUF LAGER!",
@@ -52,7 +52,7 @@
     "time": "Zeit",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Alte SKU**: `{old_sku}`\n**Neue SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Möglicher bevorstehender Drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Möglicher bevorstehender Drop!"
   },
   "el": {
     "in_stock_title": "🚀 {gpu_name} ΔΙΑΘΕΣΙΜΟ!",
@@ -63,7 +63,7 @@
     "time": "Ώρα",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Παλαιό SKU**: `{old_sku}`\n**Νέο SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Πιθανή επικείμενη πτώση!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Πιθανή επικείμενη πτώση!"
   },
   "es": {
     "in_stock_title": "🚀 {gpu_name} ¡EN STOCK!",
@@ -74,7 +74,7 @@
     "time": "Hora",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**SKU antiguo**: `{old_sku}`\n**SKU nuevo**: `{new_sku}`",
-    "imminent_drop": "⚠️ ¡Posible drop inminente!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ ¡Posible drop inminente!"
   },
   "et": {
     "in_stock_title": "🚀 {gpu_name} LAOS!",
@@ -85,7 +85,7 @@
     "time": "Aeg",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Vana SKU**: `{old_sku}`\n**Uus SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Võimalik varsti tulemas drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Võimalik varsti tulemas drop!"
   },
   "fi": {
     "in_stock_title": "🚀 {gpu_name} VARASTOSSA!",
@@ -96,7 +96,7 @@
     "time": "Aika",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Vanha SKU**: `{old_sku}`\n**Uusi SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Mahdollinen lähestyvä drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mahdollinen lähestyvä drop!"
   },
   "fr": {
     "in_stock_title": "🚀 {gpu_name} EN STOCK !",
@@ -107,7 +107,7 @@
     "time": "Heure",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Ancien SKU** : `{old_sku}`\n**Nouveau SKU** : `{new_sku}`",
-    "imminent_drop": "⚠️ Éventuel drop imminent!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Éventuel drop imminent!"
   },
   "hr": {
     "in_stock_title": "🚀 {gpu_name} NA ZALIHI!",
@@ -118,7 +118,7 @@
     "time": "Vrijeme",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Stari SKU**: `{old_sku}`\n**Novi SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Mogući nadolazeći drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mogući nadolazeći drop!"
   },
   "hu": {
     "in_stock_title": "🚀 {gpu_name} RAKTÁRON!",
@@ -129,7 +129,7 @@
     "time": "Idő",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Régi SKU**: `{old_sku}`\n**Új SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Lehetséges közelgő drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Lehetséges közelgő drop!"
   },
   "ga": {
     "in_stock_title": "🚀 {gpu_name} I STOC!",
@@ -140,7 +140,7 @@
     "time": "Am",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Sean SKU**: `{old_sku}`\n**SKU Nua**: `{new_sku}`",
-    "imminent_drop": "⚠️ I bhfad is gaire drop féideartha!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ I bhfad is gaire drop féideartha!"
   },
   "it": {
     "in_stock_title": "🚀 {gpu_name} DISPONIBILE!",
@@ -151,7 +151,7 @@
     "time": "Ora",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Vecchio SKU**: `{old_sku}`\n**Nuovo SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Possibile drop imminente!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possibile drop imminente!"
   },
   "lv": {
     "in_stock_title": "🚀 {gpu_name} KRĀJUMĀ!",
@@ -162,7 +162,7 @@
     "time": "Laiks",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Vecais SKU**: `{old_sku}`\n**Jaunais SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Iespējams gaidāms drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Iespējams gaidāms drop!"
   },
   "lt": {
     "in_stock_title": "🚀 {gpu_name} SANDĖLYJE!",
@@ -173,7 +173,7 @@
     "time": "Laikas",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Senas SKU**: `{old_sku}`\n**Naujas SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Rugsėjo drop'as gali artėti!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Rugsėjo drop'as gali artėti!"
   },
   "mt": {
     "in_stock_title": "🚀 {gpu_name} F'ĠESTA!",
@@ -184,7 +184,7 @@
     "time": "Ħin",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**SKU Antik**: `{old_sku}`\n**SKU Ġdid**: `{new_sku}`",
-    "imminent_drop": "⚠️ Possibbli drop imminenti!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possibbli drop imminenti!"
   },
   "nl": {
     "in_stock_title": "🚀 {gpu_name} OP VOORRAAD!",
@@ -195,7 +195,7 @@
     "time": "Tijd",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Oude SKU**: `{old_sku}`\n**Nieuwe SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Mogelijke aanstaande drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mogelijke aanstaande drop!"
   },
   "pl": {
     "in_stock_title": "🚀 {gpu_name} DOSTĘPNE!",
@@ -206,7 +206,7 @@
     "time": "Czas",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Stare SKU**: `{old_sku}`\n**Nowe SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Możliwy nadchodzący drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Możliwy nadchodzący drop!"
   },
   "pt": {
     "in_stock_title": "🚀 {gpu_name} EM STOCK!",
@@ -217,7 +217,7 @@
     "time": "Hora",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**SKU antigo**: `{old_sku}`\n**SKU novo**: `{new_sku}`",
-    "imminent_drop": "⚠️ Possível drop iminente!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possível drop iminente!"
   },
   "ro": {
     "in_stock_title": "🚀 {gpu_name} ÎN STOC!",
@@ -228,7 +228,7 @@
     "time": "Timp",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**SKU vechi**: `{old_sku}`\n**SKU nou**: `{new_sku}`",
-    "imminent_drop": "⚠️ Posibil drop iminent!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Posibil drop iminent!"
   },
   "sk": {
     "in_stock_title": "🚀 {gpu_name} NA SKLADE!",
@@ -239,7 +239,7 @@
     "time": "Čas",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Starý SKU**: `{old_sku}`\n**Nový SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Možný nadchádzajúci drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možný nadchádzajúci drop!"
   },
   "sl": {
     "in_stock_title": "🚀 {gpu_name} NA ZALOGI!",
@@ -250,7 +250,7 @@
     "time": "Čas",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Stari SKU**: `{old_sku}`\n**Novi SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Možen prihajajoči drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možen prihajajoči drop!"
   },
   "sv": {
     "in_stock_title": "🚀 {gpu_name} I LAGER!",
@@ -261,6 +261,6 @@
     "time": "Tid",
     "footer": "NviBot • {DISCORD_SERVER_NAME}",
     "sku_description": "**Gammalt SKU**: `{old_sku}`\n**Nytt SKU**: `{new_sku}`",
-    "imminent_drop": "⚠️ Möjlig förestående drop!"
+    "imminent_drop": "{DISCORD_ROLE} ⚠️ Möjlig förestående drop!"
   }
 }

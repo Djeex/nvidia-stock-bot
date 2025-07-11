@@ -61,7 +61,6 @@ services:
       - API_URL_STOCK=       # API providing stock data for your country
       - PRODUCT_URL=         # GPU purchase URL for your country
       - PYTHONUNBUFFERED=1   # Enables real-time log output
-    command: python nvidia-stock-bot.py
 ```
 
 **Environment Variables:**

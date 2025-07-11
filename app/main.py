@@ -1,53 +1,27 @@
 import time
 import logging
-from env_config import REFRESH_TIME, PRODUCT_NAMES, PRODUCT_URL
-from gpu_checker import get_current_skus, check_stock_for_skus
-from notifier import send_discord_notification, send_out_of_stock_notification, send_sku_change_notification
+import signal
+import sys
+from gpu_checker import check_rtx_50_founders
+from env_config import REFRESH_TIME
 
-def main():
-    previous_sku_map = {}
-    while True:
-        try:
-            current_sku_map = get_current_skus()
-            if not current_sku_map:
-                logging.warning("⚠️ No SKUs found, skipping this cycle.")
-                time.sleep(REFRESH_TIME)
-                continue
+# Signal handler function
+def handle_exit(signum, frame):
+    logging.info(f"🛑 Received signal {signum}. Exiting gracefully...")
+    sys.exit(0)
 
-            sku_list = list(current_sku_map.values())
-            stock_data = check_stock_for_skus(sku_list)
-            if not stock_data:
-                logging.warning("⚠️ No stock data found, skipping this cycle.")
-                time.sleep(REFRESH_TIME)
-                continue
-
-            for gpu_name in PRODUCT_NAMES:
-                old_sku = previous_sku_map.get(gpu_name)
-                new_sku = current_sku_map.get(gpu_name)
-
-                # Detect SKU changes
-                if old_sku and new_sku and old_sku != new_sku:
-                    send_sku_change_notification(gpu_name, old_sku, new_sku, PRODUCT_URL)
-
-                sku_to_check = new_sku or old_sku
-                if sku_to_check and sku_to_check in stock_data:
-                    availability = stock_data[sku_to_check]['available']
-                    price = stock_data[sku_to_check]['price']
-                    if availability:
-                        send_discord_notification(gpu_name, PRODUCT_URL, price)
-                    else:
-                        send_out_of_stock_notification(gpu_name, PRODUCT_URL, price)
-
-            previous_sku_map = current_sku_map
-            logging.info(f"Waiting {REFRESH_TIME}s before next check...")
-            time.sleep(REFRESH_TIME)
-
-        except KeyboardInterrupt:
-            logging.info("Stopping script due to keyboard interrupt.")
-            break
-        except Exception as e:
-            logging.error(f"🚨 Unexpected error: {e}")
-            time.sleep(REFRESH_TIME)
+# Register signal handlers
+signal.signal(signal.SIGINT, handle_exit)   # Ctrl+C
+signal.signal(signal.SIGTERM, handle_exit)  # docker stop / kill -15
 
 if __name__ == "__main__":
-    main()
+    try:
+        while True:
+            start = time.time()
+            check_rtx_50_founders()
+            elapsed = time.time() - start
+            time.sleep(max(0, REFRESH_TIME - elapsed))
+    except KeyboardInterrupt:
+        logging.info("🛑 Script interrupted by user (KeyboardInterrupt). Exiting gracefully.")
+        sys.exit(0)
+        

@@ -1,8 +1,7 @@
 import requests
 import logging
-from env_config import API_URL_SKU, API_URL_STOCK, HEADERS, PRODUCT_NAMES, PRODUCT_URL
+from env_config import HEADERS, PRODUCT_NAMES, API_URL_SKU, API_URL_STOCK, PRODUCT_URL
 from notifier import send_discord_notification, send_out_of_stock_notification, send_sku_change_notification
-
 from requests.adapters import HTTPAdapter, Retry
 
 session = requests.Session()
@@ -25,7 +24,6 @@ def check_rtx_50_founders():
         logging.error(f"SKU API error: {e}")
         return
 
-    # All available products
     all_products = data['searchedProducts']['productDetails']
 
     for product_name in PRODUCT_NAMES:
@@ -44,7 +42,6 @@ def check_rtx_50_founders():
         if not isinstance(product_upc, list):
             product_upc = [product_upc]
 
-        # Check SKU change
         old_sku = last_sku_dict.get(product_name)
         if old_sku and old_sku != product_sku and not first_run_dict[product_name]:
             logging.warning(f"⚠️ SKU changed for {product_name}: {old_sku} → {product_sku}")
@@ -53,7 +50,6 @@ def check_rtx_50_founders():
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False
 
-        # Stock check
         api_stock_url = API_URL_STOCK + product_sku
         logging.info(f"[{product_name}] Checking stock: {api_stock_url}")
 
@@ -101,4 +97,3 @@ def check_rtx_50_founders():
                 logging.info(f"[{product_name}] {upc} still in stock.")
             else:
                 logging.info(f"[{product_name}] {upc} still out of stock.")
-                

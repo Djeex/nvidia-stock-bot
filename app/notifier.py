@@ -2,7 +2,7 @@ import time
 import logging
 import requests
 from env_config import (
-    DISCORD_WEBHOOK_URL, DISCORD_SERVER_NAME, DISCORD_ROLE_MAP, TEST_MODE, DISCORD_NOTIFICATION_CURRENCY,
+    DISCORD_WEBHOOK_URL, DISCORD_SERVER_NAME, DISCORD_ROLE_MAP, TEST_MODE, currency,
     in_stock_title, out_of_stock_title, sku_change_title,
     buy_now, price_label, time_label, footer, sku_description, imminent_drop
 )
@@ -13,7 +13,6 @@ THUMBNAIL = "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/
 # In stock
 def send_discord_notification(gpu_name, product_link, products_price):
     timestamp = int(time.time())
-    currency = DISCORD_NOTIFICATION_CURRENCY
     if TEST_MODE:
         logging.info(f"[TEST MODE] Notification: {gpu_name} available!")
         return

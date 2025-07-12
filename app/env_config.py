@@ -15,9 +15,10 @@ try:
     # Env variables
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
     DISCORD_SERVER_NAME = os.environ.get('DISCORD_SERVER_NAME', 'Shared for free')
-    API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
-    API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
-    REFRESH_TIME = int(os.environ.get('REFRESH_TIME', 30))
+    DISCORD_NOTIFICATION_CURRENCY = os.environ.get('DISCORD_NOTIFICATION_CURRENCY') or '€'
+    API_URL_SKU = os.environ.get('API_URL_SKU') or 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia'
+    API_URL_STOCK = os.environ.get('API_URL_STOCK') or 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus='
+    REFRESH_TIME = int(os.environ.get('REFRESH_TIME') or 30)
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
     DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
@@ -31,6 +32,9 @@ except ValueError:
 
 if not PRODUCT_NAMES:
     logging.error("❌ PRODUCT_NAMES is required but not defined.")
+    sys.exit(1)
+if not DISCORD_WEBHOOK_URL:
+    logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
     sys.exit(1)
 
 PRODUCT_NAMES = [name.strip() for name in PRODUCT_NAMES.split(',')]
@@ -51,10 +55,6 @@ else:
             logging.error(f"❌ Invalid DISCORD_ROLE format for {name}: {role}")
             sys.exit(1)
         DISCORD_ROLE_MAP[name] = role
-
-if not DISCORD_WEBHOOK_URL:
-    logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
-    sys.exit(1)
 
 # Masked webhook for display
 match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
@@ -136,6 +136,7 @@ imminent_drop = loc["imminent_drop"]
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
 logging.info(f"Discord Role Mention: {DISCORD_ROLES}")
+logging.info(f"Currency used for notifications: {DISCORD_NOTIFICATION_CURRENCY}")
 logging.info(f"API URL SKU: {API_URL_SKU}")
 logging.info(f"API URL Stock: {API_URL_STOCK}")
 logging.info(f"Product URL: {PRODUCT_URL}")

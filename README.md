@@ -55,12 +55,13 @@ services:
     restart: unless-stopped
     environment:
     # Minimal environment variables
-      - PRODUCT_NAMES=       # Exact GPU name (e.g. "RTX 5080, RTX 5090")
-      - DISCORD_WEBHOOK_URL= # Your Discord webhook URL
-      - API_URL_SKU=         # API listing the product for your country
-      - API_URL_STOCK=       # API providing stock data for your country
-      - PRODUCT_URL=         # GPU purchase URL for your country
-      - PYTHONUNBUFFERED=1   # Enables real-time log output
+      - PRODUCT_NAMES=                  # Exact GPU name (e.g. "RTX 5080, RTX 5090")
+      - DISCORD_WEBHOOK_URL=            # Your Discord webhook URL
+      - DISCORD_NOTIFICATION_CURRENCY=  # Set your country currency
+      - API_URL_SKU=                    # API listing the product for your country
+      - API_URL_STOCK=                  # API providing stock data for your country
+      - PRODUCT_URL=                    # GPU purchase URL for your country
+      - PYTHONUNBUFFERED=1              # Enables real-time log output
 ```
 
 **Environment Variables:**
@@ -69,6 +70,7 @@ services:
 |---------------------|-------------------------------------------------|------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
 | `PRODUCT_NAMES`        | The exact GPU names you're searching for         | `RTX 5080, RTX 5090`                             |                                                                                                             |
 | `DISCORD_WEBHOOK_URL` | Your Discord webhook URL                        | A valid URL                                                     |                                                                                                              |
+| `DISCORD_NOTIFICATION_CURRENCY` | Your country currency                        | A text, e.g. `$`, `€`, `£`...                                                      | `€`                                                                                                                 |
 | `DISCORD_SERVER_NAME`        | The name of your server, displayed in notification's footer         | A text                             | Shared for free                                                                                                            |
 | `DISCORD_NOTIFICATION_LANGUAGE` | Your language for notification's content                        | `bg`, `cs`, `da`, `de`, `el`, `en`, `es`, `et`, `fi`, `fr`, `ga`, `hr`, `hu`, `it`, `lt`, `lv`, `mt`, `nl`, `pl`, `pt`, `ro`, `sk`, `sl`, `sv`                                                      | `en`                                                                                                             |
 | `DISCORD_ROLES` | List of Discord roles ID in the same order than `PRODUCT_NAMES` values, found in your discord server settings (with user profile developer mode enabled)                         | `<@&12345><@&6789>`                                                    | @everyone                                                                                                            |
@@ -151,6 +153,7 @@ git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
 
 ```sh
 export DISCORD_WEBHOOK_URL="https://your_discord_url"
+export DISCORD_NOTIFICATION_CURRENCY=€
 export PRODUCT_NAMES=RTX 5080, RTX 5090
 export DISCORD_ROLES=<@&12345>, <@&6789>
 export REFRESH_TIME="60"

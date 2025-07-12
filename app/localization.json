@@ -1,266 +1,104 @@
-{
-  "en": {
-    "in_stock_title": "🚀 {gpu_name} IN STOCK!",
-    "out_of_stock_title": "❌ {gpu_name} is out of stock",
-    "sku_change_title": "🔄 SKU change detected for {gpu_name}",
-    "buy_now": "**:point_right: [Buy now]({product_link})**",
-    "price": "Price",
-    "time": "Time",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Old SKU** : `{old_sku}`\n**New SKU** : `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possible imminent drop!"
+[
+  {
+    "country": "United Kingdom",
+    "country_code": "GB",
+    "language_code": "en-GB",
+    "currency": "£"
   },
-  "bg": {
-    "in_stock_title": "🚀 {gpu_name} ИМА НАЛИЧНОСТ!",
-    "out_of_stock_title": "❌ {gpu_name} е изчерпан",
-    "sku_change_title": "🔄 Засечена промяна на SKU за {gpu_name}",
-    "buy_now": "**:point_right: [Купи сега]({product_link})**",
-    "price": "Цена",
-    "time": "Час",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Стар SKU**: `{old_sku}`\n**Нов SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Възможен наближаващ спад!"
+  {
+    "country": "United States",
+    "country_code": "US",
+    "language_code": "en-US",
+    "currency": "$"
   },
-  "cs": {
-    "in_stock_title": "🚀 {gpu_name} SKLADEM!",
-    "out_of_stock_title": "❌ {gpu_name} je vyprodán",
-    "sku_change_title": "🔄 Změna SKU nalezena pro {gpu_name}",
-    "buy_now": "**:point_right: [Koupit nyní]({product_link})**",
-    "price": "Cena",
-    "time": "Čas",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Starý SKU**: `{old_sku}`\n**Nový SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možný blížící se pokles!"
+  {
+    "country": "Canada",
+    "country_code": "CA",
+    "language_code": "en-CA",
+    "currency": "$"
   },
-  "da": {
-    "in_stock_title": "🚀 {gpu_name} PÅ LAGER!",
-    "out_of_stock_title": "❌ {gpu_name} er udsolgt",
-    "sku_change_title": "🔄 SKU-ændring fundet for {gpu_name}",
-    "buy_now": "**:point_right: [Køb nu]({product_link})**",
-    "price": "Pris",
-    "time": "Tid",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Gammelt SKU**: `{old_sku}`\n**Nyt SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Muligt snarligt drop!"
+  {
+    "country": "Belgium",
+    "country_code": "BE",
+    "language_code": "nl-BE",
+    "currency": "€"
   },
-  "de": {
-    "in_stock_title": "🚀 {gpu_name} AUF LAGER!",
-    "out_of_stock_title": "❌ {gpu_name} ist ausverkauft",
-    "sku_change_title": "🔄 SKU-Änderung erkannt für {gpu_name}",
-    "buy_now": "**:point_right: [Jetzt kaufen]({product_link})**",
-    "price": "Preis",
-    "time": "Zeit",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Alte SKU**: `{old_sku}`\n**Neue SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Möglicher bevorstehender Drop!"
+  {
+    "country": "Netherlands",
+    "country_code": "NL",
+    "language_code": "nl-NL",
+    "currency": "€"
   },
-  "el": {
-    "in_stock_title": "🚀 {gpu_name} ΔΙΑΘΕΣΙΜΟ!",
-    "out_of_stock_title": "❌ {gpu_name} εξαντλήθηκε",
-    "sku_change_title": "🔄 Ανίχνευση αλλαγής SKU για {gpu_name}",
-    "buy_now": "**:point_right: [Αγόρασε τώρα]({product_link})**",
-    "price": "Τιμή",
-    "time": "Ώρα",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Παλαιό SKU**: `{old_sku}`\n**Νέο SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Πιθανή επικείμενη πτώση!"
+  {
+    "country": "Denmark",
+    "country_code": "DK",
+    "language_code": "da-DK",
+    "currency": "kr"
   },
-  "es": {
-    "in_stock_title": "🚀 {gpu_name} ¡EN STOCK!",
-    "out_of_stock_title": "❌ {gpu_name} está agotado",
-    "sku_change_title": "🔄 Cambio de SKU detectado para {gpu_name}",
-    "buy_now": "**:point_right: [Comprar ahora]({product_link})**",
-    "price": "Precio",
-    "time": "Hora",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**SKU antiguo**: `{old_sku}`\n**SKU nuevo**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ ¡Posible drop inminente!"
+  {
+    "country": "Germany",
+    "country_code": "DE",
+    "language_code": "de-DE",
+    "currency": "€"
   },
-  "et": {
-    "in_stock_title": "🚀 {gpu_name} LAOS!",
-    "out_of_stock_title": "❌ {gpu_name} on välja müüdud",
-    "sku_change_title": "🔄 Tuvastatud SKU muudatus {gpu_name}",
-    "buy_now": "**:point_right: [Osta kohe]({product_link})**",
-    "price": "Hind",
-    "time": "Aeg",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Vana SKU**: `{old_sku}`\n**Uus SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Võimalik varsti tulemas drop!"
+  {
+    "country": "Spain",
+    "country_code": "ES",
+    "language_code": "es-ES",
+    "currency": "€"
   },
-  "fi": {
-    "in_stock_title": "🚀 {gpu_name} VARASTOSSA!",
-    "out_of_stock_title": "❌ {gpu_name} on loppunut",
-    "sku_change_title": "🔄 SKU-muutos havaittu {gpu_name}",
-    "buy_now": "**:point_right: [Osta nyt]({product_link})**",
-    "price": "Hinta",
-    "time": "Aika",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Vanha SKU**: `{old_sku}`\n**Uusi SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mahdollinen lähestyvä drop!"
+  {
+    "country": "France",
+    "country_code": "FR",
+    "language_code": "fr-FR",
+    "currency": "€"
   },
-  "fr": {
-    "in_stock_title": "🚀 {gpu_name} EN STOCK !",
-    "out_of_stock_title": "❌ {gpu_name} est en rupture",
-    "sku_change_title": "🔄 Changement de SKU détecté pour {gpu_name}",
-    "buy_now": "**:point_right: [Acheter maintenant]({product_link})**",
-    "price": "Prix",
-    "time": "Heure",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Ancien SKU** : `{old_sku}`\n**Nouveau SKU** : `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Éventuel drop imminent!"
+  {
+    "country": "Italy",
+    "country_code": "IT",
+    "language_code": "it-IT",
+    "currency": "€"
   },
-  "hr": {
-    "in_stock_title": "🚀 {gpu_name} NA ZALIHI!",
-    "out_of_stock_title": "❌ {gpu_name} je rasprodan",
-    "sku_change_title": "🔄 Promjena SKU za {gpu_name}",
-    "buy_now": "**:point_right: [Kupi sada]({product_link})**",
-    "price": "Cijena",
-    "time": "Vrijeme",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Stari SKU**: `{old_sku}`\n**Novi SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mogući nadolazeći drop!"
+  {
+    "country": "Norway",
+    "country_code": "NO",
+    "language_code": "nb-NO",
+    "currency": "kr"
   },
-  "hu": {
-    "in_stock_title": "🚀 {gpu_name} RAKTÁRON!",
-    "out_of_stock_title": "❌ {gpu_name} elfogyott",
-    "sku_change_title": "🔄 SKU változás észlelve: {gpu_name}",
-    "buy_now": "**:point_right: [Vásárlás most]({product_link})**",
-    "price": "Ár",
-    "time": "Idő",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Régi SKU**: `{old_sku}`\n**Új SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Lehetséges közelgő drop!"
+  {
+    "country": "Austria",
+    "country_code": "AT",
+    "language_code": "de-AT",
+    "currency": "€"
   },
-  "ga": {
-    "in_stock_title": "🚀 {gpu_name} I STOC!",
-    "out_of_stock_title": "❌ níl {gpu_name} ar fáil",
-    "sku_change_title": "🔄 SKU athraithe aimsithe do {gpu_name}",
-    "buy_now": "**:point_right: [Ceannaigh anois]({product_link})**",
-    "price": "Praghas",
-    "time": "Am",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Sean SKU**: `{old_sku}`\n**SKU Nua**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ I bhfad is gaire drop féideartha!"
+  {
+    "country": "Poland",
+    "country_code": "PL",
+    "language_code": "pl-PL",
+    "currency": "zł"
   },
-  "it": {
-    "in_stock_title": "🚀 {gpu_name} DISPONIBILE!",
-    "out_of_stock_title": "❌ {gpu_name} esaurito",
-    "sku_change_title": "🔄 Modifica SKU rilevata per {gpu_name}",
-    "buy_now": "**:point_right: [Acquista ora]({product_link})**",
-    "price": "Prezzo",
-    "time": "Ora",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Vecchio SKU**: `{old_sku}`\n**Nuovo SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possibile drop imminente!"
+  {
+    "country": "Finland",
+    "country_code": "FI",
+    "language_code": "fi-FI",
+    "currency": "€"
   },
-  "lv": {
-    "in_stock_title": "🚀 {gpu_name} KRĀJUMĀ!",
-    "out_of_stock_title": "❌ {gpu_name} nav pieejams",
-    "sku_change_title": "🔄 SKU izmaiņas: {gpu_name}",
-    "buy_now": "**:point_right: [Pirkt tagad]({product_link})**",
-    "price": "Cena",
-    "time": "Laiks",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Vecais SKU**: `{old_sku}`\n**Jaunais SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Iespējams gaidāms drop!"
+  {
+    "country": "Sweden",
+    "country_code": "SE",
+    "language_code": "sv-SE",
+    "currency": "kr"
   },
-  "lt": {
-    "in_stock_title": "🚀 {gpu_name} SANDĖLYJE!",
-    "out_of_stock_title": "❌ {gpu_name} išparduotas",
-    "sku_change_title": "🔄 SKU pakeitimas aptiktas: {gpu_name}",
-    "buy_now": "**:point_right: [Pirkti dabar]({product_link})**",
-    "price": "Kaina",
-    "time": "Laikas",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Senas SKU**: `{old_sku}`\n**Naujas SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Rugsėjo drop'as gali artėti!"
+  {
+    "country": "South Korea",
+    "country_code": "KR",
+    "language_code": "ko-KR",
+    "currency": "₩"
   },
-  "mt": {
-    "in_stock_title": "🚀 {gpu_name} F'ĠESTA!",
-    "out_of_stock_title": "❌ {gpu_name} mhux disponibbli",
-    "sku_change_title": "🔄 Bidla SKU skoperta għal {gpu_name}",
-    "buy_now": "**:point_right: [Ixtri issa]({product_link})**",
-    "price": "Prezz",
-    "time": "Ħin",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**SKU Antik**: `{old_sku}`\n**SKU Ġdid**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possibbli drop imminenti!"
-  },
-  "nl": {
-    "in_stock_title": "🚀 {gpu_name} OP VOORRAAD!",
-    "out_of_stock_title": "❌ {gpu_name} is uitverkocht",
-    "sku_change_title": "🔄 SKU-wijziging gedetecteerd voor {gpu_name}",
-    "buy_now": "**:point_right: [Nu kopen]({product_link})**",
-    "price": "Prijs",
-    "time": "Tijd",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Oude SKU**: `{old_sku}`\n**Nieuwe SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Mogelijke aanstaande drop!"
-  },
-  "pl": {
-    "in_stock_title": "🚀 {gpu_name} DOSTĘPNE!",
-    "out_of_stock_title": "❌ {gpu_name} jest niedostępny",
-    "sku_change_title": "🔄 Wykryto zmianę SKU dla {gpu_name}",
-    "buy_now": "**:point_right: [Kup teraz]({product_link})**",
-    "price": "Cena",
-    "time": "Czas",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Stare SKU**: `{old_sku}`\n**Nowe SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Możliwy nadchodzący drop!"
-  },
-  "pt": {
-    "in_stock_title": "🚀 {gpu_name} EM STOCK!",
-    "out_of_stock_title": "❌ {gpu_name} esgotado",
-    "sku_change_title": "🔄 Alteração de SKU detectada para {gpu_name}",
-    "buy_now": "**:point_right: [Comprar agora]({product_link})**",
-    "price": "Preço",
-    "time": "Hora",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**SKU antigo**: `{old_sku}`\n**SKU novo**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Possível drop iminente!"
-  },
-  "ro": {
-    "in_stock_title": "🚀 {gpu_name} ÎN STOC!",
-    "out_of_stock_title": "❌ {gpu_name} este epuizat",
-    "sku_change_title": "🔄 Schimbare SKU detectată pentru {gpu_name}",
-    "buy_now": "**:point_right: [Cumpără acum]({product_link})**",
-    "price": "Preț",
-    "time": "Timp",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**SKU vechi**: `{old_sku}`\n**SKU nou**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Posibil drop iminent!"
-  },
-  "sk": {
-    "in_stock_title": "🚀 {gpu_name} NA SKLADE!",
-    "out_of_stock_title": "❌ {gpu_name} je vypredaný",
-    "sku_change_title": "🔄 Zmena SKU zistená pre {gpu_name}",
-    "buy_now": "**:point_right: [Kúp teraz]({product_link})**",
-    "price": "Cena",
-    "time": "Čas",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Starý SKU**: `{old_sku}`\n**Nový SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možný nadchádzajúci drop!"
-  },
-  "sl": {
-    "in_stock_title": "🚀 {gpu_name} NA ZALOGI!",
-    "out_of_stock_title": "❌ {gpu_name} je razprodan",
-    "sku_change_title": "🔄 Sprememba SKU zaznana za {gpu_name}",
-    "buy_now": "**:point_right: [Kupi zdaj]({product_link})**",
-    "price": "Cena",
-    "time": "Čas",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Stari SKU**: `{old_sku}`\n**Novi SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Možen prihajajoči drop!"
-  },
-  "sv": {
-    "in_stock_title": "🚀 {gpu_name} I LAGER!",
-    "out_of_stock_title": "❌ {gpu_name} är slut",
-    "sku_change_title": "🔄 SKU-ändring upptäckt för {gpu_name}",
-    "buy_now": "**:point_right: [Köp nu]({product_link})**",
-    "price": "Pris",
-    "time": "Tid",
-    "footer": "NviBot • {DISCORD_SERVER_NAME}",
-    "sku_description": "**Gammalt SKU**: `{old_sku}`\n**Nytt SKU**: `{new_sku}`",
-    "imminent_drop": "{DISCORD_ROLE} ⚠️ Möjlig förestående drop!"
+  {
+    "country": "Japan",
+    "country_code": "JP",
+    "language_code": "ja-JP",
+    "currency": "¥"
   }
-}
+]

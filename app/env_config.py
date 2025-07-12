@@ -4,31 +4,41 @@ import logging
 import json
 import sys
 
+VERSION = "4.0.0"
+
 # Logger setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-logging.info("Script started")
 
+# Logging starter
+logging.info("=" * 60)
+logging.info("🟩 Nvidia Stock Bot - Version %s", VERSION)
+logging.info("Source: https://git.djeex.fr/Djeex/nvidia-stock-bot")
+logging.info("Mirror: https://github.com/Djeex/nvidia-stock-bot")
+logging.info("=" * 60)
+
+# Env variables
 try:
-    # Env variables
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
     DISCORD_SERVER_NAME = os.environ.get('DISCORD_SERVER_NAME', 'Shared for free')
-    DISCORD_NOTIFICATION_CURRENCY = os.environ.get('DISCORD_NOTIFICATION_CURRENCY') or '€'
-    API_URL_SKU = os.environ.get('API_URL_SKU') or 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia'
-    API_URL_STOCK = os.environ.get('API_URL_STOCK') or 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus='
+    DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
+    COUNTRY = os.environ.get('COUNTRY') or 'US'
     REFRESH_TIME = int(os.environ.get('REFRESH_TIME') or 30)
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
-    PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
-    DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
     PRODUCT_NAMES = os.environ['PRODUCT_NAMES']
+
+# Errors and warning
 except KeyError as e:
     logging.error(f"Missing environment variable: {e}")
     sys.exit(1)
 except ValueError:
     logging.error("REFRESH_TIME must be a valid integer.")
     sys.exit(1)
+
+if TEST_MODE:
+    logging.warning("🚧 Test mode is active. No real alerts will be sent.")
 
 if not PRODUCT_NAMES:
     logging.error("❌ PRODUCT_NAMES is required but not defined.")
@@ -56,7 +66,7 @@ else:
             sys.exit(1)
         DISCORD_ROLE_MAP[name] = role
 
-# Masked webhook for display
+# Masked webhook in terminal
 match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
 if match:
     webhook_id = match.group(1)
@@ -66,10 +76,6 @@ if match:
     wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
 else:
     wh_masked_url = "[Invalid webhook URL]"
-
-# Test mode
-if TEST_MODE:
-    logging.warning("🚧 Test mode is active. No real alerts will be sent.")
 
 # HTTP headers
 HEADERS = {
@@ -90,36 +96,80 @@ HEADERS = {
     "Sec-GPC": "1",
 }
 
-# Localization loading
-language = os.environ.get("DISCORD_NOTIFICATION_LANGUAGE", "en").lower()
+# Load country setting and localization config
+country_code = os.environ.get("COUNTRY", "US").upper()
+
 try:
     with open("localization.json", "r", encoding="utf-8") as f:
-        localization = json.load(f)
+        localization_config = json.load(f)
 except FileNotFoundError:
     logging.error("❌ localization.json file not found.")
     sys.exit(1)
 
+# Find country entry
+country_entry = next((entry for entry in localization_config if entry["country_code"].upper() == country_code), None)
+
+if not country_entry:
+    logging.warning(f"⚠️ Country '{country_code}' not found in localization.json. Defaulting to US.")
+    country_entry = next((entry for entry in localization_config if entry["country_code"].upper() == "US"), None)
+    if not country_entry:
+        logging.error("❌ US fallback not found in localization.json.")
+        sys.exit(1)
+
+# Extract language code and currency
+full_lang_code = country_entry["language_code"]
+language = full_lang_code[:2].lower()  # e.g., "en-US" -> "en"
+currency = country_entry["currency"]
+
+# Load language file
+try:
+    with open("languages.json", "r", encoding="utf-8") as f:
+        loc_lang = json.load(f)
+except FileNotFoundError:
+    logging.error("❌ languages.json file not found.")
+    sys.exit(1)
+
+loc = loc_lang.get(language, loc_lang.get("en", {}))
+logging.info(f"Notification language: {language} (from country {country_code})")
+logging.info(f"Currency symbol: {currency}")
+
+if not loc:
+    logging.warning(f"⚠️ Language '{language}' not found. Falling back to English.")
+    loc = loc_lang.get("en", {})
+    language = "en"
+
+# Ensure all required keys are present
 required_keys = [
     "in_stock_title", "out_of_stock_title", "sku_change_title",
     "buy_now", "price", "time", "footer",
     "sku_description", "imminent_drop"
 ]
-loc = localization.get(language, localization.get("en", {}))
-logging.info(f"Notification language: {language}")
-
-if not loc:
-    logging.warning(f"⚠️ Language '{language}' not found. Falling back to English.")
-    loc = localization.get("en", {})
-    language = "en"
-
 missing_keys = [key for key in required_keys if key not in loc]
-fallback = localization.get("en", {})
+fallback = loc_lang.get("en", {})
+
 for key in missing_keys:
     if key in fallback:
         loc[key] = fallback[key]
     else:
         logging.error(f"❌ Missing required key '{key}' in both '{language}' and fallback 'en'.")
         sys.exit(1)
+
+# Localized API - Env var can be overrided for development purposes
+locale = full_lang_code.lower()
+API_URL_SKU = os.getenv(
+    "API_URL_SKU",
+    f"https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale={locale}&Manufacturer=Nvidia"
+)
+
+API_URL_STOCK = os.getenv(
+    "API_URL_STOCK",
+    f"https://api.store.nvidia.com/partner/v1/feinventory?locale={locale}&skus="
+)
+
+PRODUCT_URL = os.getenv(
+    "PRODUCT_URL",
+    f"https://marketplace.nvidia.com/{locale}/consumer/graphics-cards/?locale={locale}&page=1&limit=12&manufacturer=NVIDIA"
+)
 
 # Public constants
 in_stock_title = loc["in_stock_title"]
@@ -136,7 +186,6 @@ imminent_drop = loc["imminent_drop"]
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
 logging.info(f"Discord Role Mention: {DISCORD_ROLES}")
-logging.info(f"Currency used for notifications: {DISCORD_NOTIFICATION_CURRENCY}")
 logging.info(f"API URL SKU: {API_URL_SKU}")
 logging.info(f"API URL Stock: {API_URL_STOCK}")
 logging.info(f"Product URL: {PRODUCT_URL}")

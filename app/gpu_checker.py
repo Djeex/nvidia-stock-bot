@@ -4,17 +4,21 @@ from env_config import HEADERS, PRODUCT_NAMES, API_URL_SKU, API_URL_STOCK, PRODU
 from notifier import send_discord_notification, send_out_of_stock_notification, send_sku_change_notification
 from requests.adapters import HTTPAdapter, Retry
 
+# HTTP session
 session = requests.Session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
+# Keeping memory of last run 
 last_sku_dict = {}
 global_stock_status_dict = {}
 first_run_dict = {name: True for name in PRODUCT_NAMES}
 
+# Stock check function
 def check_rtx_50_founders():
     global last_sku_dict, global_stock_status_dict, first_run_dict
 
+    # Fetching nvidia API data
     try:
         response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
         logging.info(f"SKU API response: {response.status_code}")
@@ -23,7 +27,8 @@ def check_rtx_50_founders():
     except requests.exceptions.RequestException as e:
         logging.error(f"SKU API error: {e}")
         return
-
+    
+    # Checking productSKU and productUPC for all GPU set in PRODUCT_NAME
     all_products = data['searchedProducts']['productDetails']
 
     for product_name in PRODUCT_NAMES:
@@ -42,6 +47,7 @@ def check_rtx_50_founders():
         if not isinstance(product_upc, list):
             product_upc = [product_upc]
 
+        # Detect SKU changes
         old_sku = last_sku_dict.get(product_name)
         if old_sku and old_sku != product_sku and not first_run_dict[product_name]:
             logging.warning(f"⚠️ SKU changed for {product_name}: {old_sku} → {product_sku}")
@@ -49,7 +55,8 @@ def check_rtx_50_founders():
 
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False
-
+        
+        # Check product availability in API_URL_STOCK for each SKU
         api_stock_url = API_URL_STOCK + product_sku
         logging.info(f"[{product_name}] Checking stock: {api_stock_url}")
 
@@ -62,6 +69,7 @@ def check_rtx_50_founders():
             logging.error(f"Stock API error: {e}")
             continue
 
+        # Retrieve availibilty and price for each SKU
         products = stock_data.get("listMap", [])
         products_price = "Price not available"
         if isinstance(products, list) and len(products) > 0:
@@ -79,7 +87,8 @@ def check_rtx_50_founders():
             is_active = p.get("is_active") == "true"
             if is_active and any(upc.upper() in gpu_name for upc in product_upc):
                 found_in_stock.add(gpu_name)
-
+        
+        # Comparing previous state and notify
         for upc in product_upc:
             upc_upper = upc.upper()
             currently_in_stock = upc_upper in found_in_stock

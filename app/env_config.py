@@ -4,15 +4,23 @@ import logging
 import json
 import sys
 
+VERSION = "4.0.0"
+
 # Logger setup
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
-logging.info("Script started")
 
+# Logging starter
+logging.info("=" * 60)
+logging.info("🟩 Nvidia Stock Bot - Version %s", VERSION)
+logging.info("Source: https://git.djeex.fr/Djeex/nvidia-stock-bot")
+logging.info("Mirror: https://github.com/Djeex/nvidia-stock-bot")
+logging.info("=" * 60)
+
+# Env variables
 try:
-    # Env variables
     DISCORD_WEBHOOK_URL = os.environ['DISCORD_WEBHOOK_URL']
     DISCORD_SERVER_NAME = os.environ.get('DISCORD_SERVER_NAME', 'Shared for free')
     DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
@@ -20,12 +28,17 @@ try:
     REFRESH_TIME = int(os.environ.get('REFRESH_TIME') or 30)
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
     PRODUCT_NAMES = os.environ['PRODUCT_NAMES']
+
+# Errors and warning
 except KeyError as e:
     logging.error(f"Missing environment variable: {e}")
     sys.exit(1)
 except ValueError:
     logging.error("REFRESH_TIME must be a valid integer.")
     sys.exit(1)
+
+if TEST_MODE:
+    logging.warning("🚧 Test mode is active. No real alerts will be sent.")
 
 if not PRODUCT_NAMES:
     logging.error("❌ PRODUCT_NAMES is required but not defined.")
@@ -53,7 +66,7 @@ else:
             sys.exit(1)
         DISCORD_ROLE_MAP[name] = role
 
-# Masked webhook for display
+# Masked webhook in terminal
 match = re.search(r'/(\d+)/(.*)', DISCORD_WEBHOOK_URL)
 if match:
     webhook_id = match.group(1)
@@ -63,10 +76,6 @@ if match:
     wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
 else:
     wh_masked_url = "[Invalid webhook URL]"
-
-# Test mode
-if TEST_MODE:
-    logging.warning("🚧 Test mode is active. No real alerts will be sent.")
 
 # HTTP headers
 HEADERS = {

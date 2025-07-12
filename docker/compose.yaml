@@ -7,10 +7,9 @@ services:
       - .env
     environment:
     # Minimal environment variables
-      - PRODUCT_NAMES=                  # Exact GPU name (e.g. "RTX 5080, RTX 5090")
-      - DISCORD_WEBHOOK_URL=            # Your Discord webhook URL
-      - DISCORD_NOTIFICATION_CURRENCY=  # Set your country currency
-      - API_URL_SKU=                    # API listing the product for your country
-      - API_URL_STOCK=                  # API providing stock data for your country
-      - PRODUCT_URL=                    # GPU purchase URL for your country
-      - PYTHONUNBUFFERED=1              # Enables real-time log output
+      environment:
+    # Minimal environment variables
+      - PRODUCT_NAMES=${PRODUCT_NAMES}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - COUNTRY=${COUNTRY}                        
+      - PYTHONUNBUFFERED=1

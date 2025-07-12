@@ -10,6 +10,7 @@ from env_config import (
 AVATAR = "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
 THUMBNAIL = "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
 
+# In stock
 def send_discord_notification(gpu_name, product_link, products_price):
     timestamp = int(time.time())
     if TEST_MODE:
@@ -45,6 +46,7 @@ def send_discord_notification(gpu_name, product_link, products_price):
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
 
+# Out of stock
 def send_out_of_stock_notification(gpu_name, product_link, products_price):
     timestamp = int(time.time())
     if TEST_MODE:
@@ -76,6 +78,7 @@ def send_out_of_stock_notification(gpu_name, product_link, products_price):
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
 
+# SKU change
 def send_sku_change_notification(gpu_name, old_sku, new_sku, product_link):
     timestamp = int(time.time())
     if TEST_MODE:

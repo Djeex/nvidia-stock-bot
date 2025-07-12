@@ -17,7 +17,7 @@ try:
     DISCORD_SERVER_NAME = os.environ.get('DISCORD_SERVER_NAME', 'Shared for free')
     API_URL_SKU = os.environ.get('API_URL_SKU', 'https://api.nvidia.partners/edge/product/search?page=1&limit=100&locale=fr-fr&Manufacturer=Nvidia')
     API_URL_STOCK = os.environ.get('API_URL_STOCK', 'https://api.store.nvidia.com/partner/v1/feinventory?locale=fr-fr&skus=')
-    REFRESH_TIME = int(os.environ['REFRESH_TIME'])
+    REFRESH_TIME = int(os.environ.get('REFRESH_TIME', 30))
     TEST_MODE = os.environ.get('TEST_MODE', 'False').lower() == 'true'
     PRODUCT_URL = os.environ.get('PRODUCT_URL', 'https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/?locale=fr-fr&page=1&limit=12&manufacturer=NVIDIA')
     DISCORD_ROLES = os.environ.get('DISCORD_ROLES')
@@ -66,6 +66,10 @@ if match:
     wh_masked_url = f"https://discord.com/api/webhooks/{masked_webhook_id}/{masked_webhook_token}"
 else:
     wh_masked_url = "[Invalid webhook URL]"
+
+# Test mode
+if TEST_MODE:
+    logging.warning("🚧 Test mode is active. No real alerts will be sent.")
 
 # HTTP headers
 HEADERS = {
@@ -128,6 +132,7 @@ footer = loc["footer"]
 sku_description = loc["sku_description"]
 imminent_drop = loc["imminent_drop"]
 
+# Logging
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
 logging.info(f"Discord Role Mention: {DISCORD_ROLES}")

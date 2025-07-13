@@ -18,7 +18,7 @@
 ## 🖼️ Screenshots
 
 <div align="center" >
-  <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png?=1" alt="Nvidia Stock Bot - screenshots">
+  <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord-screenshot.png" alt="Nvidia Stock Bot - screenshots">
 </div>
 
 ## 📌 Table of Contents

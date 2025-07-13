@@ -11,9 +11,15 @@
 **🤖 Nvidia Stock Bot** - A bot that alerts you in real-time about **Nvidia RTX FE** GPU stock availability through Discord notifications.
 
 > [!NOTE]
->_The code was partially written and structured using a generative AI._
->
 >_Github repo is a mirror of https://git.djeex.fr/Djeex/nvidia-stock-bot. You'll find full package, history and release note there._
+> 
+>_LLM used for bugs check and languages files generation._
+
+## 🖼️ Screenshots
+
+<div align="center" >
+  <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png?=1" alt="Nvidia Stock Bot - screenshots">
+</div>
 
 ## 📌 Table of Contents
 
@@ -21,8 +27,8 @@
 - [🐳 Docker Installation without cloning the repo (quick)](#-docker-installation-without-the-repo-quick)
 - [🐙 Docker Installation with the repo (developer)](#-docker-installation-with-the-repo)
 - [🐍 Python Installation (developer)](#-python-installation)
-- [🖼️ Screenshots](#-screenshots)
 - [🐞 Common issues](#-common-issues)
+- [❓ How it works](#-how-it-works)
 - [🧑‍💻 Contributors](#-contributors)
 
 ## ✨ Features
@@ -150,7 +156,7 @@ git clone https://git.djeex.fr/Djeex/nvidia-stock-bot.git
 
 ```sh
 export DISCORD_WEBHOOK_URL="https://your_discord_url"
-export COUNTRY=€
+export COUNTRY=US
 export PRODUCT_NAMES=RTX 5080, RTX 5090
 export DISCORD_ROLES=<@&12345>, <@&6789>
 export REFRESH_TIME="60"
@@ -164,18 +170,18 @@ export PYTHONUNBUFFERED=1
 python nvidia-stock-bot.py
 ```
 
-## 🖼️ Screenshots
-
-<div align="center" >
-  <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-discord.png" alt="Nvidia Stock Bot - screenshots">
-</div>
-
 ## 🐞 Common issues
 
 Error when trying to reach product API url :
-- `API_SKU_URL` may be wrong
+- Custom `API_SKU_URL` may be wrong
 - Your IP may be blacklisted by nvidia. Try to use a VPN.
 - nvidia API may be down
+
+## ❓ How it works
+
+<div align="center" >
+  <img src="https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/nvidia-stock-bot-scheme.svg" alt="Nvidia Stock Bot - screenshots">
+</div>
 
 ## 🧑‍💻 Contributors
 

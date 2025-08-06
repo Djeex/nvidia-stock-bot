@@ -7,8 +7,6 @@ services:
       - .env
     environment:
     # Minimal environment variables
-      environment:
-    # Minimal environment variables
       - PRODUCT_NAMES=${PRODUCT_NAMES}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
       - COUNTRY=${COUNTRY}                        

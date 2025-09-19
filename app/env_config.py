@@ -4,7 +4,7 @@ import logging
 import json
 import sys
 
-VERSION = "4.0.0"
+VERSION = "4.0.1"
 
 # Logger setup
 logging.basicConfig(

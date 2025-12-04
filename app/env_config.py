@@ -4,7 +4,7 @@ import logging
 import json
 import sys
 
-VERSION = "4.0.1"
+VERSION = "4.0.2"
 
 # Logger setup
 logging.basicConfig(
@@ -79,21 +79,17 @@ else:
 
 # HTTP headers
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/131.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9," 
-              "image/avif,image/webp,image/apng,*/*;q=0.8",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
     "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Accept-Language": "en-US,en;q=0.5",
-    "Cache-Control": "max-age=0",
+    "Referer": "https://partners.nvidia.com/",
+    "Origin": "https://partners.nvidia.com",
     "Connection": "keep-alive",
-    "Sec-Fetch-Dest": "document",
-    "Sec-Fetch-Mode": "navigate",
-    "Sec-Fetch-Site": "none",
-    "Sec-Fetch-User": "?1",
-    "Upgrade-Insecure-Requests": "1",
-    "Sec-GPC": "1",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Ch-Ua": "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not.A/Brand\";v=\"24\"",
+    "Sec-Ch-Ua-Platform": "\"macOS\""
 }
 
 # Load country setting and localization config

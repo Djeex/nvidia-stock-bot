@@ -4,7 +4,9 @@ import logging
 import json
 import sys
 
-VERSION = "4.0.2"
+# Read version from VERSION file
+with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), "VERSION"), "r", encoding="utf-8") as f:
+    VERSION = f.read().strip()
 
 # Logger setup
 logging.basicConfig(

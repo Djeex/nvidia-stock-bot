@@ -4,6 +4,7 @@ RUN apk add --no-cache ca-certificates
 
 WORKDIR /app
 
+COPY VERSION /VERSION
 COPY /app/ /app/
 
 RUN pip install --no-cache-dir -r requirements.txt

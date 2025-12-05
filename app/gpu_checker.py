@@ -1,5 +1,6 @@
 import requests
 import logging
+import time
 from env_config import HEADERS, PRODUCT_NAMES, API_URL_SKU, API_URL_STOCK, PRODUCT_URL
 from notifier import send_discord_notification, send_out_of_stock_notification, send_sku_change_notification
 from requests.adapters import HTTPAdapter, Retry
@@ -8,6 +9,7 @@ from requests.adapters import HTTPAdapter, Retry
 session = requests.Session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
 session.mount('https://', HTTPAdapter(max_retries=retries))
+session.headers.update(HEADERS)
 
 # Keeping memory of last run 
 last_sku_dict = {}
@@ -20,7 +22,10 @@ def check_rtx_50_founders():
 
     # Fetching nvidia API data
     try:
-        response = session.get(API_URL_SKU, headers=HEADERS, timeout=10)
+        cache_buster = int(time.time() * 1000)
+        sku_url = f"{API_URL_SKU}&_t={cache_buster}"
+        
+        response = session.get(sku_url, timeout=10)
         logging.info(f"SKU API response: {response.status_code}")
         response.raise_for_status()
         data = response.json()
@@ -57,11 +62,12 @@ def check_rtx_50_founders():
         first_run_dict[product_name] = False
         
         # Check product availability in API_URL_STOCK for each SKU
-        api_stock_url = API_URL_STOCK + product_sku
+        cache_buster = int(time.time() * 1000)
+        api_stock_url = f"{API_URL_STOCK}{product_sku}&_t={cache_buster}"
         logging.info(f"[{product_name}] Checking stock: {api_stock_url}")
 
         try:
-            response = session.get(api_stock_url, headers=HEADERS, timeout=10)
+            response = session.get(api_stock_url, timeout=10)
             logging.info(f"[{product_name}] Stock API response: {response.status_code}")
             response.raise_for_status()
             stock_data = response.json()

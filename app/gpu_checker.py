@@ -22,19 +22,11 @@ first_run_dict = {name: True for name in PRODUCT_NAMES}
 def check_rtx_50_founders():
     global last_sku_dict, global_stock_status_dict, first_run_dict
 
-    # Random delay to avoid pattern detection
-    time.sleep(random.uniform(2, 6))
-
     # Fetching nvidia API data
     try:
-        # Vary cache buster format to avoid pattern
-        if random.choice([True, False]):
-            cache_buster = f"v{random.randint(100, 999)}"
-        else:
-            cache_buster = f"{int(time.time() % 100000)}"
-        sku_url = f"{API_URL_SKU}&cb={cache_buster}"
+        sku_url = API_URL_SKU
         
-        response = session.get(sku_url, timeout=20)
+        response = session.get(sku_url, timeout=10)
         logging.info(f"SKU API response: {response.status_code}")
         if response.status_code == 429:
             logging.warning("Rate limited, waiting longer...")
@@ -60,6 +52,15 @@ def check_rtx_50_founders():
             logging.error(f"JSON decode error: {e}")
             logging.error(f"Full response text: {response.text}")
             return
+    except requests.exceptions.ReadTimeout:
+        logging.error("Read timeout - IP may be rate limited/blocked. Try changing IP or wait several hours.")
+        return
+    except requests.exceptions.ConnectionError as e:
+        if "Failed to resolve" in str(e):
+            logging.error("DNS resolution failed - IP may be DNS blacklisted. Try VPN or different DNS servers.")
+        else:
+            logging.error(f"Connection error: {e}")
+        return
     except requests.exceptions.RequestException as e:
         logging.error(f"SKU API error: {e}")
         return
@@ -97,19 +98,12 @@ def check_rtx_50_founders():
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False
         
-        # Random delay between requests
-        time.sleep(random.uniform(1, 4))
-        
         # Check product availability in API_URL_STOCK for each SKU
-        if random.choice([True, False]):
-            cache_param = f"v{random.randint(100, 999)}"
-        else:
-            cache_param = f"{int(time.time() % 100000)}"
-        api_stock_url = f"{API_URL_STOCK}{product_sku}&cb={cache_param}"
+        api_stock_url = f"{API_URL_STOCK}{product_sku}"
         logging.info(f"[{product_name}] Checking stock: {api_stock_url}")
 
         try:
-            response = session.get(api_stock_url, timeout=20)
+            response = session.get(api_stock_url, timeout=10)
             logging.info(f"[{product_name}] Stock API response: {response.status_code}")
             if response.status_code == 429:
                 logging.warning(f"[{product_name}] Rate limited, skipping...")

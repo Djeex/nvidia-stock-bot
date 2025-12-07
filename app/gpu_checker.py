@@ -41,7 +41,18 @@ def check_rtx_50_founders():
             time.sleep(random.uniform(10, 20))
             return
         response.raise_for_status()
-        data = response.json()
+        
+        # Debug response content
+        logging.info(f"Content-Type: {response.headers.get('Content-Type')}")
+        logging.info(f"Content-Encoding: {response.headers.get('Content-Encoding')}")
+        logging.info(f"Response length: {len(response.content)}")
+        
+        try:
+            data = response.json()
+        except Exception as e:
+            logging.error(f"JSON decode error: {e}")
+            logging.error(f"Response content (first 200 chars): {response.text[:200]}")
+            return
     except requests.exceptions.RequestException as e:
         logging.error(f"SKU API error: {e}")
         return

@@ -79,22 +79,11 @@ if match:
 else:
     wh_masked_url = "[Invalid webhook URL]"
 
-# HTTP headers
+# HTTP headers - no compression to avoid parsing issues
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Accept-Encoding": "gzip, deflate, br, zstd",
-    "Referer": "https://partners.nvidia.com/",
-    "Origin": "https://partners.nvidia.com",
-    "Connection": "keep-alive",
-    "Sec-Fetch-Dest": "empty",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Ch-Ua": "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not.A/Brand\";v=\"24\"",
-    "Sec-Ch-Ua-Platform": "\"macOS\"",
-    "Cache-Control": "no-cache, no-store, must-revalidate",
-    "Pragma": "no-cache",
-    "Expires": "0"
+    "Accept": "application/json",
+    "Referer": "https://partners.nvidia.com/"
 }
 
 # Load country setting and localization config

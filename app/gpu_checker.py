@@ -44,14 +44,21 @@ def check_rtx_50_founders():
         
         # Debug response content
         logging.info(f"Content-Type: {response.headers.get('Content-Type')}")
-        logging.info(f"Content-Encoding: {response.headers.get('Content-Encoding')}")
-        logging.info(f"Response length: {len(response.content)}")
+        logging.info(f"Content-Length: {response.headers.get('Content-Length')}")
+        logging.info(f"Response text length: {len(response.text)}")
+        logging.info(f"Response content (first 300 chars): {response.text[:300]}")
         
+        # Check if content looks like JSON
+        if not response.text.strip().startswith('{'):
+            logging.error("Response doesn't start with '{' - not JSON!")
+            logging.error(f"Full response: {response.text}")
+            return
+            
         try:
             data = response.json()
         except Exception as e:
             logging.error(f"JSON decode error: {e}")
-            logging.error(f"Response content (first 200 chars): {response.text[:200]}")
+            logging.error(f"Full response text: {response.text}")
             return
     except requests.exceptions.RequestException as e:
         logging.error(f"SKU API error: {e}")
@@ -63,12 +70,17 @@ def check_rtx_50_founders():
     for product_name in PRODUCT_NAMES:
         product_details = None
         for p in all_products:
-            if p.get("gpu", "").strip() == product_name:
+            gpu_name = p.get("gpu", "").strip()
+            # Flexible matching: exact match or partial match
+            if gpu_name == product_name or product_name in gpu_name:
                 product_details = p
                 break
 
         if not product_details:
             logging.warning(f"⚠️ No product with GPU '{product_name}' found.")
+            # Debug: show available GPU names for troubleshooting
+            available_gpus = set(p.get("gpu", "") for p in all_products if p.get("gpu"))
+            logging.info(f"Available GPUs: {sorted(list(available_gpus))[:10]}")  # Show first 10
             continue
 
         product_sku = product_details['productSKU']

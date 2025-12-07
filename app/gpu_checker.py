@@ -22,6 +22,14 @@ first_run_dict = {name: True for name in PRODUCT_NAMES}
 def check_rtx_50_founders():
     global last_sku_dict, global_stock_status_dict, first_run_dict
 
+    # First get Akamai cookie by visiting main site
+    try:
+        logging.info("Getting Akamai protection cookie...")
+        session.get("https://marketplace.nvidia.com/fr-fr/consumer/graphics-cards/", timeout=10)
+        time.sleep(1)  # Let the session establish
+    except Exception as e:
+        logging.warning(f"Failed to get initial cookie: {e}")
+
     # Fetching nvidia API data
     try:
         sku_url = API_URL_SKU

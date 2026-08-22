@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build image
+        run: docker build -t nvidia-stock-bot:ci .
+
+      - name: Smoke test (syntax check)
+        run: |
+          docker run --rm --entrypoint python nvidia-stock-bot:ci -c "
+          import ast, glob
+          for f in glob.glob('/app/*.py'):
+              ast.parse(open(f).read(), filename=f)
+          print('syntax OK')
+          "
+
+      - name: Build test image
+        run: docker build --target test -t nvidia-stock-bot:test .
+
+      - name: Run unit tests
+        run: docker run --rm nvidia-stock-bot:test pytest -v
+
+      - name: Check deprecation warnings
+        run: |
+          docker run --rm --entrypoint python \
+            -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/123456789012345678/abcdef" \
+            -e PRODUCT_NAMES="RTX 5090 Founders Edition" \
+            -e TEST_MODE=True \
+            nvidia-stock-bot:ci -W error::DeprecationWarning -c "import main"
+
+      - name: Trivy scan (critical, blocking)
+        run: |
+          docker run --rm \
+            -e DOCKER_HOST=tcp://dockerhost:2375 --add-host=dockerhost:host-gateway \
+            aquasec/trivy image --severity CRITICAL --exit-code 1 --ignore-unfixed nvidia-stock-bot:ci
+
+      - name: Trivy scan (high, informative)
+        run: |
+          docker run --rm \
+            -e DOCKER_HOST=tcp://dockerhost:2375 --add-host=dockerhost:host-gateway \
+            aquasec/trivy image --severity HIGH --exit-code 0 --ignore-unfixed nvidia-stock-bot:ci
+
+      - name: Version bump, publish image and create release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CI_PUSH_TOKEN: ${{ secrets.CI_PUSH_TOKEN }}
+          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
+        run: |
+          IMAGE="git.djeex.fr/djeex/nvidia-stock-bot"
+          REPO_API="https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot"
+          REPO_URL="https://git.djeex.fr/Djeex/nvidia-stock-bot"
+
+          # actions/checkout with persist-credentials:false shouldn't leave a
+          # credential header behind, but unset it defensively anyway so it
+          # can never silently shadow the token used for the push below.
+          git config --unset-all "http.${REPO_URL}.git/.extraheader" || true
+          git config --unset-all "http.${REPO_URL}/.extraheader" || true
+
+          BASE_SHA="${{ github.event.before }}"
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA" 2>/dev/null; then
+            BASE_SHA="HEAD~1"
+          fi
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "${{ github.sha }}" 2>/dev/null || git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          RELEVANT=false
+          if echo "$CHANGED_FILES" | grep -qE '^(Dockerfile|VERSION)$|^app/'; then
+            RELEVANT=true
+          fi
+
+          VERSION_CHANGED=false
+          if echo "$CHANGED_FILES" | grep -qx "VERSION"; then
+            VERSION_CHANGED=true
+          fi
+
+          CURRENT_VERSION=$(cat VERSION)
+
+          if [ "$RELEVANT" = "true" ] && [ "$VERSION_CHANGED" = "false" ]; then
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+            PATCH=$((PATCH + 1))
+            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+            echo "$NEW_VERSION" > VERSION
+            git config user.name "gitea-ci-bot"
+            git config user.email "ci-bot@git.djeex.fr"
+            git add VERSION
+            git commit -m "chore: bump version to ${NEW_VERSION} [skip ci]"
+            git push "https://djeex:${CI_PUSH_TOKEN}@git.djeex.fr/Djeex/nvidia-stock-bot.git" "HEAD:main"
+          else
+            NEW_VERSION="$CURRENT_VERSION"
+          fi
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$NEW_VERSION"
+
+          docker tag nvidia-stock-bot:ci "${IMAGE}:latest"
+          docker tag nvidia-stock-bot:ci "${IMAGE}:${MAJOR}.${MINOR}"
+          docker tag nvidia-stock-bot:ci "${IMAGE}:${NEW_VERSION}"
+
+          echo "$REGISTRY_TOKEN" | docker login git.djeex.fr -u djeex --password-stdin
+          docker push "${IMAGE}:latest"
+          docker push "${IMAGE}:${MAJOR}.${MINOR}"
+          docker push "${IMAGE}:${NEW_VERSION}"
+
+          PR_NUMBER=$(git log -1 --format=%B | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
+
+          PR_TITLE=""
+          LABELS=""
+          if [ -n "$PR_NUMBER" ]; then
+            PR_JSON=$(curl -s -H "Authorization: token ${CI_PUSH_TOKEN}" "${REPO_API}/pulls/${PR_NUMBER}")
+            PR_TITLE=$(echo "$PR_JSON" | jq -r '.title // empty')
+            LABELS=$(echo "$PR_JSON" | jq -r '[.labels[]?.name] | join(",")')
+          fi
+
+          CATEGORY="🔧 Maintenance"
+          if echo "$LABELS" | grep -qw "bug"; then
+            CATEGORY="⚠️ Hotfix"
+          elif echo "$LABELS" | grep -qw "major"; then
+            CATEGORY="💥 Breaking change"
+          elif echo "$LABELS" | grep -qw "minor"; then
+            CATEGORY="✨ Update"
+          fi
+
+          BODY="### ${CATEGORY}"$'\n\n'
+          if [ -n "$PR_NUMBER" ]; then
+            BODY="${BODY}**PR:** [#${PR_NUMBER}](${REPO_URL}/pulls/${PR_NUMBER}) — ${PR_TITLE}"$'\n'
+          fi
+          BODY="${BODY}**Commit:** [${GITHUB_SHA:0:7}](${REPO_URL}/commit/${GITHUB_SHA})"
+
+          curl -s -X POST \
+            -H "Authorization: token ${CI_PUSH_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg tag "$NEW_VERSION" --arg name "$NEW_VERSION" --arg body "$BODY" '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')" \
+            "${REPO_API}/releases"

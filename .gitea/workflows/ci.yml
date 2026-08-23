@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: "0 6 * * 1"
 
 jobs:
   build-and-scan:
@@ -16,23 +18,35 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Build image
-        run: docker build -t nvidia-stock-bot:ci .
+      - name: Build Docker image
+        run: |
+          docker build -t nvidia-stock-bot:ci . 2>&1 | tee build.log
+          if grep -q "Building wheel for" build.log; then
+            echo "::warning::A dependency was built from source — check Python/Alpine compatibility"
+          fi
 
       - name: Smoke test (syntax check)
         run: |
           docker run --rm --entrypoint python nvidia-stock-bot:ci -c "
           import ast, glob
+          ok = True
           for f in glob.glob('/app/*.py'):
-              ast.parse(open(f).read(), filename=f)
-          print('syntax OK')
+              with open(f) as fh:
+                  source = fh.read()
+              try:
+                  ast.parse(source, filename=f)
+              except SyntaxError as e:
+                  print(f'::error::Syntax error in {f}: {e}')
+                  ok = False
+          if not ok:
+              exit(1)
+          print('OK: syntax is valid')
           "
 
-      - name: Build test image
-        run: docker build --target test -t nvidia-stock-bot:test .
-
       - name: Run unit tests
-        run: docker run --rm nvidia-stock-bot:test pytest -v
+        run: |
+          docker build --target test -t nvidia-stock-bot:test .
+          docker run --rm nvidia-stock-bot:test pytest -v
 
       - name: Check deprecation warnings
         run: |
@@ -40,108 +54,140 @@ jobs:
             -e DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/123456789012345678/abcdef" \
             -e PRODUCT_NAMES="RTX 5090 Founders Edition" \
             -e TEST_MODE=True \
-            nvidia-stock-bot:ci -W error::DeprecationWarning -c "import main"
+            nvidia-stock-bot:ci -W error::DeprecationWarning -c "import main" 2>&1 | tee deprecation.log || true
+          if grep -qi "deprecat" deprecation.log; then
+            echo "::warning::Deprecation warning detected, check logs"
+          fi
 
-      - name: Trivy scan (critical, blocking)
+      - name: Scan with Trivy (critical - blocking)
         run: |
           docker run --rm \
-            -e DOCKER_HOST=tcp://dockerhost:2375 --add-host=dockerhost:host-gateway \
-            aquasec/trivy image --severity CRITICAL --exit-code 1 --ignore-unfixed nvidia-stock-bot:ci
+            -e DOCKER_HOST=tcp://dockerhost:2375 \
+            --add-host=dockerhost:host-gateway \
+            aquasec/trivy:0.74.0 image --exit-code 1 --severity CRITICAL nvidia-stock-bot:ci
 
-      - name: Trivy scan (high, informative)
+      - name: Scan with Trivy (high - informative)
         run: |
           docker run --rm \
-            -e DOCKER_HOST=tcp://dockerhost:2375 --add-host=dockerhost:host-gateway \
-            aquasec/trivy image --severity HIGH --exit-code 0 --ignore-unfixed nvidia-stock-bot:ci
+            -e DOCKER_HOST=tcp://dockerhost:2375 \
+            --add-host=dockerhost:host-gateway \
+            aquasec/trivy:0.74.0 image --exit-code 0 --severity HIGH nvidia-stock-bot:ci
 
-      - name: Version bump, publish image and create release
+      - name: Publish tagged image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          CI_PUSH_TOKEN: ${{ secrets.CI_PUSH_TOKEN }}
-          REGISTRY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
         run: |
-          IMAGE="git.djeex.fr/djeex/nvidia-stock-bot"
-          REPO_API="https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot"
-          REPO_URL="https://git.djeex.fr/Djeex/nvidia-stock-bot"
-
-          # actions/checkout with persist-credentials:false shouldn't leave a
-          # credential header behind, but unset it defensively anyway so it
-          # can never silently shadow the token used for the push below.
-          git config --unset-all "http.${REPO_URL}.git/.extraheader" || true
-          git config --unset-all "http.${REPO_URL}/.extraheader" || true
-
-          BASE_SHA="${{ github.event.before }}"
-          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA" 2>/dev/null; then
-            BASE_SHA="HEAD~1"
-          fi
-          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "${{ github.sha }}" 2>/dev/null || git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
-          echo "Changed files:"
-          echo "$CHANGED_FILES"
-
-          RELEVANT=false
-          if echo "$CHANGED_FILES" | grep -qE '^(Dockerfile|VERSION)$|^app/'; then
-            RELEVANT=true
-          fi
-
-          VERSION_CHANGED=false
-          if echo "$CHANGED_FILES" | grep -qx "VERSION"; then
-            VERSION_CHANGED=true
-          fi
-
-          CURRENT_VERSION=$(cat VERSION)
-
-          if [ "$RELEVANT" = "true" ] && [ "$VERSION_CHANGED" = "false" ]; then
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
-            echo "$NEW_VERSION" > VERSION
-            git config user.name "gitea-ci-bot"
-            git config user.email "ci-bot@git.djeex.fr"
-            git add VERSION
-            git commit -m "chore: bump version to ${NEW_VERSION} [skip ci]"
-            git push "https://djeex:${CI_PUSH_TOKEN}@git.djeex.fr/Djeex/nvidia-stock-bot.git" "HEAD:main"
+          BEFORE="${{ github.event.before }}"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            BASE_REF="$BEFORE"
           else
-            NEW_VERSION="$CURRENT_VERSION"
+            BASE_REF="HEAD~1"
+          fi
+          CHANGED=$(git diff --name-only "$BASE_REF" "${{ github.sha }}")
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          if ! echo "$CHANGED" | grep -qE '^(Dockerfile|VERSION)$|^app/'; then
+            echo "No container-relevant file changed, skipping publish."
+            exit 0
           fi
 
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$NEW_VERSION"
+          if echo "$CHANGED" | grep -qE '^VERSION$'; then
+            echo "VERSION was manually edited in this push, using it as-is."
+          else
+            echo "VERSION untouched but container files changed, auto-bumping the build number (Z)."
+            OLD_VERSION=$(tr -d '[:space:]' < VERSION)
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
+            NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+            echo "$NEW_VERSION" > VERSION
 
-          docker tag nvidia-stock-bot:ci "${IMAGE}:latest"
-          docker tag nvidia-stock-bot:ci "${IMAGE}:${MAJOR}.${MINOR}"
-          docker tag nvidia-stock-bot:ci "${IMAGE}:${NEW_VERSION}"
+            git config user.name "nvidia-stock-bot-ci"
+            git config user.email "ci@git.djeex.fr"
+            git add VERSION
+            git commit -m "Bump build version to $NEW_VERSION [skip ci]"
 
-          echo "$REGISTRY_TOKEN" | docker login git.djeex.fr -u djeex --password-stdin
-          docker push "${IMAGE}:latest"
-          docker push "${IMAGE}:${MAJOR}.${MINOR}"
-          docker push "${IMAGE}:${NEW_VERSION}"
+            # Belt and suspenders: actions/checkout can leave its own ephemeral
+            # credential injected as an extraheader, which would silently override
+            # the URL-embedded token below. persist-credentials:false on checkout
+            # should already prevent this, but strip it here too just in case.
+            git config --unset-all http.https://git.djeex.fr/.extraheader || true
 
-          PR_NUMBER=$(git log -1 --format=%B | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
-
-          PR_TITLE=""
-          LABELS=""
-          if [ -n "$PR_NUMBER" ]; then
-            PR_JSON=$(curl -s -H "Authorization: token ${CI_PUSH_TOKEN}" "${REPO_API}/pulls/${PR_NUMBER}")
-            PR_TITLE=$(echo "$PR_JSON" | jq -r '.title // empty')
-            LABELS=$(echo "$PR_JSON" | jq -r '[.labels[]?.name] | join(",")')
+            git push "https://Djeex:${{ secrets.CI_PUSH_TOKEN }}@git.djeex.fr/Djeex/nvidia-stock-bot.git" HEAD:main
           fi
+
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          MINOR_TAG="${MAJOR}.${MINOR}"
+
+          IMAGE=git.djeex.fr/djeex/nvidia-stock-bot
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login git.djeex.fr -u Djeex --password-stdin
+
+          # Retag the already-built, already-scanned image — never rebuild for publish,
+          # so what ships is byte-for-byte what Trivy just scanned.
+          docker tag nvidia-stock-bot:ci "$IMAGE:latest"
+          docker tag nvidia-stock-bot:ci "$IMAGE:$MINOR_TAG"
+          docker tag nvidia-stock-bot:ci "$IMAGE:$VERSION"
+          docker push "$IMAGE:latest"
+          docker push "$IMAGE:$MINOR_TAG"
+          docker push "$IMAGE:$VERSION"
+
+          TRIGGER_MSG=$(git log -1 --format=%s "${{ github.sha }}")
+          PR_NUM=$(echo "$TRIGGER_MSG" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
 
           CATEGORY="🔧 Maintenance"
-          if echo "$LABELS" | grep -qw "bug"; then
-            CATEGORY="⚠️ Hotfix"
-          elif echo "$LABELS" | grep -qw "major"; then
-            CATEGORY="💥 Breaking change"
-          elif echo "$LABELS" | grep -qw "minor"; then
-            CATEGORY="✨ Update"
+          CHANGE_TITLE="$TRIGGER_MSG"
+
+          if [ -n "$PR_NUM" ]; then
+            PR_JSON=$(curl -s -H "Authorization: token ${{ secrets.CI_PUSH_TOKEN }}" \
+              "https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot/pulls/$PR_NUM")
+            PR_TITLE=$(echo "$PR_JSON" | jq -r '.title // empty' 2>/dev/null || true)
+            LABELS=$(echo "$PR_JSON" | jq -r '.labels[]?.name' 2>/dev/null || true)
+
+            if [ -n "$PR_TITLE" ]; then
+              CHANGE_TITLE="$PR_TITLE"
+            fi
+
+            if echo "$LABELS" | grep -qx 'bug'; then
+              CATEGORY="⚠️ Hotfix"
+            elif echo "$LABELS" | grep -qx 'major'; then
+              CATEGORY="💥 Breaking change"
+            elif echo "$LABELS" | grep -qx 'minor'; then
+              CATEGORY="✨ Update"
+            fi
           fi
 
-          BODY="### ${CATEGORY}"$'\n\n'
-          if [ -n "$PR_NUMBER" ]; then
-            BODY="${BODY}**PR:** [#${PR_NUMBER}](${REPO_URL}/pulls/${PR_NUMBER}) — ${PR_TITLE}"$'\n'
-          fi
-          BODY="${BODY}**Commit:** [${GITHUB_SHA:0:7}](${REPO_URL}/commit/${GITHUB_SHA})"
+          COMMIT_LIST=$(git log --no-merges --format='- %s' "$BASE_REF".."${{ github.sha }}")
 
-          curl -s -X POST \
-            -H "Authorization: token ${CI_PUSH_TOKEN}" \
+          REPO_URL="https://git.djeex.fr/Djeex/nvidia-stock-bot"
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          SOURCE_LINE="[${SHORT_SHA}](${REPO_URL}/commit/${{ github.sha }})"
+          if [ -n "$PR_NUM" ]; then
+            SOURCE_LINE="[#${PR_NUM}](${REPO_URL}/pulls/${PR_NUM}) · ${SOURCE_LINE}"
+          fi
+
+          BODY=$(cat <<EOF
+          ## Changelog
+          ---
+
+          ### ${CATEGORY}
+          ---
+          ${CHANGE_TITLE}
+
+          **Source:** ${SOURCE_LINE}
+          **Image:** \`${IMAGE}:${VERSION}\`
+
+          **Commits:**
+          ${COMMIT_LIST}
+          EOF
+          )
+
+          JSON_PAYLOAD=$(jq -n \
+            --arg tag "$VERSION" \
+            --arg name "$VERSION" \
+            --arg body "$BODY" \
+            '{tag_name: $tag, name: $name, target_commitish: "main", body: $body}')
+
+          curl -s -o /dev/null -w "Release API response: %{http_code}\n" -X POST \
+            -H "Authorization: token ${{ secrets.CI_PUSH_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n --arg tag "$NEW_VERSION" --arg name "$NEW_VERSION" --arg body "$BODY" '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')" \
-            "${REPO_API}/releases"
+            -d "$JSON_PAYLOAD" \
+            "https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot/releases"

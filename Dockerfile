@@ -20,4 +20,8 @@ CMD ["pytest", "-v"]
 
 FROM base
 
+RUN addgroup -g 911 nvbot && adduser -D -u 911 -G nvbot nvbot
+
+USER nvbot
+
 CMD ["python", "main.py"]

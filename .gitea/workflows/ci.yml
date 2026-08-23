@@ -155,9 +155,9 @@ jobs:
             fi
           fi
 
-          COMMIT_LIST=$(git log --no-merges --format='- %s' "$BASE_REF".."${{ github.sha }}")
-
           REPO_URL="https://git.djeex.fr/Djeex/nvidia-stock-bot"
+          COMMIT_LIST=$(git log --no-merges --format="- [%h](${REPO_URL}/commit/%H) %s" "$BASE_REF".."${{ github.sha }}")
+
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
           SOURCE_LINE="[${SHORT_SHA}](${REPO_URL}/commit/${{ github.sha }})"
           if [ -n "$PR_NUM" ]; then

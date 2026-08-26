@@ -44,7 +44,9 @@ def test_in_stock_notification_posts_expected_payload(monkeypatch):
 
     monkeypatch.setattr(notifier.requests, "post", fake_post)
 
-    notifier.send_discord_notification("RTX 5090 Founders Edition", "https://example.com/buy", "1999")
+    notifier.send_discord_notification(
+        "RTX 5090 Founders Edition", "https://example.com/buy", "1999"
+    )
 
     assert captured["url"] == notifier.DISCORD_WEBHOOK_URL
     assert captured["json"]["content"] == "@everyone"
@@ -54,7 +56,9 @@ def test_in_stock_notification_posts_expected_payload(monkeypatch):
 
 def test_discord_notification_survives_http_error(monkeypatch):
     notifier = _import_notifier(monkeypatch, test_mode="False")
-    monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom"))
+    monkeypatch.setattr(
+        notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom")
+    )
 
     notifier.send_discord_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
 
@@ -76,7 +80,9 @@ def test_out_of_stock_test_mode_skips_network_call(monkeypatch):
     calls = []
     monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: calls.append((a, k)))
 
-    notifier.send_out_of_stock_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
+    notifier.send_out_of_stock_notification(
+        "RTX 5090 Founders Edition", "https://example.com", "1999"
+    )
 
     assert calls == []
 
@@ -91,17 +97,23 @@ def test_out_of_stock_notification_posts_on_success(monkeypatch):
 
     monkeypatch.setattr(notifier.requests, "post", fake_post)
 
-    notifier.send_out_of_stock_notification("RTX 5090 Founders Edition", "https://example.com/buy", "1999")
+    notifier.send_out_of_stock_notification(
+        "RTX 5090 Founders Edition", "https://example.com/buy", "1999"
+    )
 
     assert captured["json"]["embeds"][0]["url"] == "https://example.com/buy"
 
 
 def test_out_of_stock_notification_survives_http_error(monkeypatch):
     notifier = _import_notifier(monkeypatch, test_mode="False")
-    monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom"))
+    monkeypatch.setattr(
+        notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom")
+    )
 
     # Should not raise even though the webhook call "fails"
-    notifier.send_out_of_stock_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
+    notifier.send_out_of_stock_notification(
+        "RTX 5090 Founders Edition", "https://example.com", "1999"
+    )
 
 
 def test_out_of_stock_notification_survives_connection_error(monkeypatch):
@@ -112,7 +124,9 @@ def test_out_of_stock_notification_survives_connection_error(monkeypatch):
 
     monkeypatch.setattr(notifier.requests, "post", raise_error)
 
-    notifier.send_out_of_stock_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
+    notifier.send_out_of_stock_notification(
+        "RTX 5090 Founders Edition", "https://example.com", "1999"
+    )
 
 
 def test_sku_change_test_mode_skips_network_call(monkeypatch):
@@ -120,16 +134,22 @@ def test_sku_change_test_mode_skips_network_call(monkeypatch):
     calls = []
     monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: calls.append((a, k)))
 
-    notifier.send_sku_change_notification("RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com")
+    notifier.send_sku_change_notification(
+        "RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com"
+    )
 
     assert calls == []
 
 
 def test_sku_change_notification_survives_http_error(monkeypatch):
     notifier = _import_notifier(monkeypatch, test_mode="False")
-    monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom"))
+    monkeypatch.setattr(
+        notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=500, text="boom")
+    )
 
-    notifier.send_sku_change_notification("RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com")
+    notifier.send_sku_change_notification(
+        "RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com"
+    )
 
 
 def test_sku_change_notification_survives_connection_error(monkeypatch):
@@ -140,11 +160,15 @@ def test_sku_change_notification_survives_connection_error(monkeypatch):
 
     monkeypatch.setattr(notifier.requests, "post", raise_error)
 
-    notifier.send_sku_change_notification("RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com")
+    notifier.send_sku_change_notification(
+        "RTX 5090 Founders Edition", "old-sku", "new-sku", "https://example.com"
+    )
 
 
 def test_sku_change_notification_mentions_role_and_skus(monkeypatch):
-    notifier = _import_notifier(monkeypatch, test_mode="False", discord_roles="<@&123456789012345678>")
+    notifier = _import_notifier(
+        monkeypatch, test_mode="False", discord_roles="<@&123456789012345678>"
+    )
     captured = {}
 
     def fake_post(url, json=None, **kwargs):

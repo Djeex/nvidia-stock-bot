@@ -38,62 +38,83 @@ def test_missing_product_names_exits(monkeypatch):
 
 
 def test_default_role_map_is_everyone(monkeypatch):
-    cfg = _reload_env_config(monkeypatch, {
-        "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-        "PRODUCT_NAMES": "RTX 5090, RTX 5080",
-    })
+    cfg = _reload_env_config(
+        monkeypatch,
+        {
+            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+            "PRODUCT_NAMES": "RTX 5090, RTX 5080",
+        },
+    )
     assert cfg.DISCORD_ROLE_MAP == {"RTX 5090": "@everyone", "RTX 5080": "@everyone"}
 
 
 def test_role_count_mismatch_exits(monkeypatch):
     with pytest.raises(SystemExit):
-        _reload_env_config(monkeypatch, {
-            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-            "PRODUCT_NAMES": "RTX 5090, RTX 5080",
-            "DISCORD_ROLES": "<@&123456789012345678>",
-        })
+        _reload_env_config(
+            monkeypatch,
+            {
+                "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+                "PRODUCT_NAMES": "RTX 5090, RTX 5080",
+                "DISCORD_ROLES": "<@&123456789012345678>",
+            },
+        )
 
 
 def test_invalid_role_format_exits(monkeypatch):
     with pytest.raises(SystemExit):
-        _reload_env_config(monkeypatch, {
-            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-            "PRODUCT_NAMES": "RTX 5090",
-            "DISCORD_ROLES": "not-a-role",
-        })
+        _reload_env_config(
+            monkeypatch,
+            {
+                "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+                "PRODUCT_NAMES": "RTX 5090",
+                "DISCORD_ROLES": "not-a-role",
+            },
+        )
 
 
 def test_valid_role_format_accepted(monkeypatch):
-    cfg = _reload_env_config(monkeypatch, {
-        "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-        "PRODUCT_NAMES": "RTX 5090",
-        "DISCORD_ROLES": "<@&123456789012345678>",
-    })
+    cfg = _reload_env_config(
+        monkeypatch,
+        {
+            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+            "PRODUCT_NAMES": "RTX 5090",
+            "DISCORD_ROLES": "<@&123456789012345678>",
+        },
+    )
     assert cfg.DISCORD_ROLE_MAP["RTX 5090"] == "<@&123456789012345678>"
 
 
 def test_unknown_country_falls_back_to_us(monkeypatch):
-    cfg = _reload_env_config(monkeypatch, {
-        "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-        "PRODUCT_NAMES": "RTX 5090",
-        "COUNTRY": "ZZ",
-    })
+    cfg = _reload_env_config(
+        monkeypatch,
+        {
+            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+            "PRODUCT_NAMES": "RTX 5090",
+            "COUNTRY": "ZZ",
+        },
+    )
     assert cfg.currency == "$"
 
 
 def test_known_country_currency(monkeypatch):
-    cfg = _reload_env_config(monkeypatch, {
-        "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-        "PRODUCT_NAMES": "RTX 5090",
-        "COUNTRY": "GB",
-    })
+    cfg = _reload_env_config(
+        monkeypatch,
+        {
+            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+            "PRODUCT_NAMES": "RTX 5090",
+            "COUNTRY": "GB",
+        },
+    )
     assert cfg.currency == "£"
 
 
 def test_refresh_time_invalid_exits(monkeypatch):
     with pytest.raises(SystemExit):
-        _reload_env_config(monkeypatch, {
-            "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
-            "PRODUCT_NAMES": "RTX 5090",
-            "REFRESH_TIME": "not-a-number",
-        })
+        _reload_env_config(
+            monkeypatch,
+            {
+                "DISCORD_WEBHOOK_URL": VALID_WEBHOOK,
+                "PRODUCT_NAMES": "RTX 5090",
+                "REFRESH_TIME": "not-a-number",
+            },
+        )

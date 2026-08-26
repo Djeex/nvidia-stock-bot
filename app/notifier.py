@@ -1,14 +1,28 @@
-import time
 import logging
+import time
+
 import requests
+
 from env_config import (
-    DISCORD_WEBHOOK_URL, DISCORD_SERVER_NAME, DISCORD_ROLE_MAP, TEST_MODE, currency,
-    in_stock_title, out_of_stock_title, sku_change_title,
-    buy_now, price_label, time_label, footer, sku_description, imminent_drop
+    DISCORD_ROLE_MAP,
+    DISCORD_SERVER_NAME,
+    DISCORD_WEBHOOK_URL,
+    TEST_MODE,
+    buy_now,
+    currency,
+    footer,
+    imminent_drop,
+    in_stock_title,
+    out_of_stock_title,
+    price_label,
+    sku_change_title,
+    sku_description,
+    time_label,
 )
 
 AVATAR = "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/ds_wh_pp.jpg"
 THUMBNAIL = "https://git.djeex.fr/Djeex/nvidia-stock-bot/raw/branch/main/assets/img/RTX5000.jpg"
+
 
 # In stock
 def send_discord_notification(gpu_name, product_link, products_price):
@@ -24,17 +38,20 @@ def send_discord_notification(gpu_name, product_link, products_price):
         "author": {"name": "Nvidia Founder Editions"},
         "fields": [
             {"name": price_label, "value": f"`{currency}{products_price}`", "inline": True},
-            {"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True}
+            {"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True},
         ],
         "description": buy_now.format(product_link=product_link),
-        "footer": {"text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME), "icon_url": AVATAR}
+        "footer": {
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
+            "icon_url": AVATAR,
+        },
     }
 
     payload = {
         "content": DISCORD_ROLE_MAP.get(gpu_name, "@everyone"),
         "username": "NviBot",
         "avatar_url": AVATAR,
-        "embeds": [embed]
+        "embeds": [embed],
     }
 
     try:
@@ -45,6 +62,7 @@ def send_discord_notification(gpu_name, product_link, products_price):
             logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
+
 
 # Out of stock
 def send_out_of_stock_notification(gpu_name, product_link, products_price):
@@ -59,15 +77,16 @@ def send_out_of_stock_notification(gpu_name, product_link, products_price):
         "thumbnail": {"url": THUMBNAIL},
         "url": product_link,
         "author": {"name": "Nvidia Founder Editions"},
-        "footer": {"text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME), "icon_url": AVATAR},
-        "fields": [{"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True}]
+        "footer": {
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
+            "icon_url": AVATAR,
+        },
+        "fields": [
+            {"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True}
+        ],
     }
 
-    payload = {
-        "username": "NviBot",
-        "avatar_url": AVATAR,
-        "embeds": [embed]
-    }
+    payload = {"username": "NviBot", "avatar_url": AVATAR, "embeds": [embed]}
 
     try:
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
@@ -77,6 +96,7 @@ def send_out_of_stock_notification(gpu_name, product_link, products_price):
             logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
+
 
 # SKU change
 def send_sku_change_notification(gpu_name, old_sku, new_sku, product_link):
@@ -90,15 +110,20 @@ def send_sku_change_notification(gpu_name, old_sku, new_sku, product_link):
         "url": product_link,
         "description": sku_description.format(old_sku=old_sku, new_sku=new_sku),
         "color": 16776960,
-        "footer": {"text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME), "icon_url": AVATAR},
-        "fields": [{"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True}]
+        "footer": {
+            "text": footer.format(DISCORD_SERVER_NAME=DISCORD_SERVER_NAME),
+            "icon_url": AVATAR,
+        },
+        "fields": [
+            {"name": time_label, "value": f"<t:{timestamp}:d> <t:{timestamp}:T>", "inline": True}
+        ],
     }
 
     payload = {
-        "content": imminent_drop.format(DISCORD_ROLE=DISCORD_ROLE_MAP.get(gpu_name, '@everyone')),
+        "content": imminent_drop.format(DISCORD_ROLE=DISCORD_ROLE_MAP.get(gpu_name, "@everyone")),
         "username": "NviBot",
         "avatar_url": AVATAR,
-        "embeds": [embed]
+        "embeds": [embed],
     }
 
     try:
@@ -109,4 +134,3 @@ def send_sku_change_notification(gpu_name, old_sku, new_sku, product_link):
             logging.error(f"❌ Webhook error: {response.status_code} - {response.text}")
     except Exception as e:
         logging.error(f"🚨 Error sending webhook: {e}")
-        

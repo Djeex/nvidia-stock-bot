@@ -1,0 +1,13 @@
+line-length = 100
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+# E501: handled by the formatter. B905: zip() without strict= in env_config.py —
+# app-logic change, left for the user to decide (see feedback-no-app-logic-changes).
+ignore = ["E501", "B905"]
+
+[lint.isort]
+# Pinned explicitly: auto-detection of first-party modules differs between the
+# host (app/ subdir + .git present) and the Docker lint stage (flattened to /app,
+# no .git) — without this, import-sort results silently diverge between the two.
+known-first-party = ["env_config", "gpu_checker", "notifier", "main"]

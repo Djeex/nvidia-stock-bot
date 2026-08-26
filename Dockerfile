@@ -11,12 +11,19 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 FROM base AS test
 
-RUN pip install --no-cache-dir pytest==9.1.1
+RUN pip install --no-cache-dir pytest==9.1.1 pytest-cov==7.1.0
 
 COPY pytest.ini /app/pytest.ini
 COPY /tests/ /app/tests/
 
 CMD ["pytest", "-v"]
+
+FROM base AS lint
+
+RUN pip install --no-cache-dir ruff==0.16.4
+COPY ruff.toml /app/ruff.toml
+COPY /tests/ /app/tests/
+RUN ruff check . && ruff format --check .
 
 FROM base
 

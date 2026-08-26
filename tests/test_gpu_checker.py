@@ -6,9 +6,7 @@ PRODUCT_NAME = "RTX 5090 Founders Edition"
 
 SKU_PAYLOAD = {
     "searchedProducts": {
-        "productDetails": [
-            {"gpu": PRODUCT_NAME, "productSKU": "SKU-1", "productUPC": "ABC123"}
-        ]
+        "productDetails": [{"gpu": PRODUCT_NAME, "productSKU": "SKU-1", "productUPC": "ABC123"}]
     }
 }
 
@@ -52,9 +50,15 @@ def _queue_responses(monkeypatch, checker, *payloads):
 def test_transition_to_in_stock_sends_notification(monkeypatch):
     checker = _import_gpu_checker(monkeypatch)
     calls = []
-    monkeypatch.setattr(checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a)))
-    monkeypatch.setattr(checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a)))
-    monkeypatch.setattr(checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a)))
+    monkeypatch.setattr(
+        checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a))
+    )
 
     _queue_responses(monkeypatch, checker, SKU_PAYLOAD, _stock_payload(True))
     checker.check_rtx_50_founders()
@@ -67,9 +71,15 @@ def test_transition_to_in_stock_sends_notification(monkeypatch):
 def test_transition_to_out_of_stock_sends_notification(monkeypatch):
     checker = _import_gpu_checker(monkeypatch)
     calls = []
-    monkeypatch.setattr(checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a)))
-    monkeypatch.setattr(checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a)))
-    monkeypatch.setattr(checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a)))
+    monkeypatch.setattr(
+        checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a))
+    )
 
     _queue_responses(monkeypatch, checker, SKU_PAYLOAD, _stock_payload(True))
     checker.check_rtx_50_founders()
@@ -84,9 +94,15 @@ def test_transition_to_out_of_stock_sends_notification(monkeypatch):
 def test_no_duplicate_notification_while_still_in_stock(monkeypatch):
     checker = _import_gpu_checker(monkeypatch)
     calls = []
-    monkeypatch.setattr(checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a)))
-    monkeypatch.setattr(checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a)))
-    monkeypatch.setattr(checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a)))
+    monkeypatch.setattr(
+        checker, "send_discord_notification", lambda *a: calls.append(("in_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_out_of_stock_notification", lambda *a: calls.append(("out_of_stock", a))
+    )
+    monkeypatch.setattr(
+        checker, "send_sku_change_notification", lambda *a: calls.append(("sku_change", a))
+    )
 
     _queue_responses(monkeypatch, checker, SKU_PAYLOAD, _stock_payload(True))
     checker.check_rtx_50_founders()
@@ -101,7 +117,9 @@ def test_sku_change_triggers_notification_after_first_run(monkeypatch):
     sku_change_calls = []
     monkeypatch.setattr(checker, "send_discord_notification", lambda *a: None)
     monkeypatch.setattr(checker, "send_out_of_stock_notification", lambda *a: None)
-    monkeypatch.setattr(checker, "send_sku_change_notification", lambda *a: sku_change_calls.append(a))
+    monkeypatch.setattr(
+        checker, "send_sku_change_notification", lambda *a: sku_change_calls.append(a)
+    )
 
     _queue_responses(monkeypatch, checker, SKU_PAYLOAD, _stock_payload(False))
     checker.check_rtx_50_founders()
@@ -109,9 +127,7 @@ def test_sku_change_triggers_notification_after_first_run(monkeypatch):
 
     changed_payload = {
         "searchedProducts": {
-            "productDetails": [
-                {"gpu": PRODUCT_NAME, "productSKU": "SKU-2", "productUPC": "ABC123"}
-            ]
+            "productDetails": [{"gpu": PRODUCT_NAME, "productSKU": "SKU-2", "productUPC": "ABC123"}]
         }
     }
     _queue_responses(monkeypatch, checker, changed_payload, _stock_payload(False))

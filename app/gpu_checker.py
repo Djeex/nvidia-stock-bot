@@ -1,20 +1,27 @@
-import requests
 import logging
 import time
-from env_config import HEADERS, PRODUCT_NAMES, API_URL_SKU, API_URL_STOCK, PRODUCT_URL
-from notifier import send_discord_notification, send_out_of_stock_notification, send_sku_change_notification
+
+import requests
 from requests.adapters import HTTPAdapter, Retry
+
+from env_config import API_URL_SKU, API_URL_STOCK, HEADERS, PRODUCT_NAMES, PRODUCT_URL
+from notifier import (
+    send_discord_notification,
+    send_out_of_stock_notification,
+    send_sku_change_notification,
+)
 
 # HTTP session
 session = requests.Session()
 retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-session.mount('https://', HTTPAdapter(max_retries=retries))
+session.mount("https://", HTTPAdapter(max_retries=retries))
 session.headers.update(HEADERS)
 
-# Keeping memory of last run 
+# Keeping memory of last run
 last_sku_dict = {}
 global_stock_status_dict = {}
 first_run_dict = {name: True for name in PRODUCT_NAMES}
+
 
 # Stock check function
 def check_rtx_50_founders():
@@ -24,7 +31,7 @@ def check_rtx_50_founders():
     try:
         cache_buster = int(time.time() * 1000)
         sku_url = f"{API_URL_SKU}&_t={cache_buster}"
-        
+
         response = session.get(sku_url, timeout=10)
         logging.info(f"SKU API response: {response.status_code}")
         response.raise_for_status()
@@ -32,9 +39,9 @@ def check_rtx_50_founders():
     except requests.exceptions.RequestException as e:
         logging.error(f"SKU API error: {e}")
         return
-    
+
     # Checking productSKU and productUPC for all GPU set in PRODUCT_NAME
-    all_products = data['searchedProducts']['productDetails']
+    all_products = data["searchedProducts"]["productDetails"]
 
     for product_name in PRODUCT_NAMES:
         product_details = None
@@ -47,8 +54,8 @@ def check_rtx_50_founders():
             logging.warning(f"⚠️ No product with GPU '{product_name}' found.")
             continue
 
-        product_sku = product_details['productSKU']
-        product_upc = product_details.get('productUPC', "")
+        product_sku = product_details["productSKU"]
+        product_upc = product_details.get("productUPC", "")
         if not isinstance(product_upc, list):
             product_upc = [product_upc]
 
@@ -60,7 +67,7 @@ def check_rtx_50_founders():
 
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False
-        
+
         # Check product availability in API_URL_STOCK for each SKU
         cache_buster = int(time.time() * 1000)
         api_stock_url = f"{API_URL_STOCK}{product_sku}&_t={cache_buster}"
@@ -80,8 +87,8 @@ def check_rtx_50_founders():
         products_price = "Price not available"
         if isinstance(products, list) and len(products) > 0:
             for p in products:
-                price = p.get("price", 'Price not available')
-                if price != 'Price not available':
+                price = p.get("price", "Price not available")
+                if price != "Price not available":
                     products_price = price
                     break
         else:
@@ -93,7 +100,7 @@ def check_rtx_50_founders():
             is_active = p.get("is_active") == "true"
             if is_active and any(upc.upper() in gpu_name for upc in product_upc):
                 found_in_stock.add(gpu_name)
-        
+
         # Comparing previous state and notify
         for upc in product_upc:
             upc_upper = upc.upper()

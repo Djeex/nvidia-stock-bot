@@ -4,10 +4,13 @@ import sys
 VALID_WEBHOOK = "https://discord.com/api/webhooks/123456789012345678/abcdef"
 
 
-def _import_notifier(monkeypatch, test_mode="False", discord_roles=None):
-    monkeypatch.setenv("DISCORD_WEBHOOK_URL", VALID_WEBHOOK)
+def _import_notifier(monkeypatch, test_mode="False", discord_roles=None, keep_discord=True):
+    if keep_discord:
+        monkeypatch.setenv("DISCORD_WEBHOOK_URL", VALID_WEBHOOK)
     monkeypatch.setenv("PRODUCT_NAMES", "RTX 5090 Founders Edition")
     monkeypatch.setenv("TEST_MODE", test_mode)
+    if not keep_discord:
+        monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
     if discord_roles is not None:
         monkeypatch.setenv("DISCORD_ROLES", discord_roles)
     else:
@@ -185,3 +188,74 @@ def test_sku_change_notification_mentions_role_and_skus(monkeypatch):
     description = captured["json"]["embeds"][0]["description"]
     assert "old-sku-123" in description
     assert "new-sku-456" in description
+
+
+def _import_telegram_notifier(monkeypatch, with_discord=False):
+    if not with_discord:
+        monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "123:abc")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "-100123")
+    return _import_notifier(monkeypatch, test_mode="False", keep_discord=with_discord)
+
+
+def test_telegram_in_stock_posts_to_bot_api(monkeypatch):
+    notifier = _import_telegram_notifier(monkeypatch)
+    captured = {}
+
+    def fake_post(url, json=None, **kwargs):
+        captured["url"] = url
+        captured["json"] = json
+        return FakeResponse(status_code=200)
+
+    monkeypatch.setattr(notifier.requests, "post", fake_post)
+
+    notifier.send_telegram_notification("RTX 5090 Founders Edition", "https://example.com/buy", "1999")
+
+    assert captured["url"] == "https://api.telegram.org/bot123:abc/sendMessage"
+    assert captured["json"]["chat_id"] == "-100123"
+    assert "RTX 5090 Founders Edition" in captured["json"]["text"]
+    assert "https://example.com/buy" in captured["json"]["text"]
+
+
+def test_telegram_disabled_sends_nothing(monkeypatch):
+    notifier = _import_notifier(monkeypatch, test_mode="False")
+    calls = []
+    monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: calls.append(a))
+
+    notifier.send_telegram_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
+    notifier.send_telegram_out_of_stock_notification("RTX 5090", "https://example.com", "1999")
+    notifier.send_telegram_sku_change_notification("RTX 5090", "a", "b", "https://example.com")
+
+    assert calls == []
+
+
+def test_discord_disabled_sends_nothing(monkeypatch):
+    notifier = _import_telegram_notifier(monkeypatch)
+    calls = []
+    monkeypatch.setattr(notifier.requests, "post", lambda *a, **k: calls.append(a))
+
+    notifier.send_discord_notification("RTX 5090 Founders Edition", "https://example.com", "1999")
+
+    assert calls == []
+
+
+def test_telegram_error_does_not_leak_token_or_raise(monkeypatch, caplog):
+    notifier = _import_telegram_notifier(monkeypatch)
+
+    def raise_error(*a, **k):
+        raise notifier.requests.exceptions.ConnectionError("https://api.telegram.org/bot123:abc/")
+
+    monkeypatch.setattr(notifier.requests, "post", raise_error)
+
+    notifier.send_telegram_out_of_stock_notification("RTX 5090", "https://example.com", "1999")
+
+    assert "123:abc" not in caplog.text
+
+
+def test_telegram_sku_change_and_http_error(monkeypatch):
+    notifier = _import_telegram_notifier(monkeypatch)
+    monkeypatch.setattr(
+        notifier.requests, "post", lambda *a, **k: FakeResponse(status_code=400, text="bad")
+    )
+
+    notifier.send_telegram_sku_change_notification("RTX 5090", "old", "new", "https://example.com")

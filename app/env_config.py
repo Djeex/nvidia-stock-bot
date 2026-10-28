@@ -25,9 +25,11 @@ logging.info("=" * 60)
 
 # Env variables
 try:
-    DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
+    DISCORD_WEBHOOK_URL = (os.environ.get("DISCORD_WEBHOOK_URL") or "").strip()
     DISCORD_SERVER_NAME = os.environ.get("DISCORD_SERVER_NAME", "Shared for free")
     DISCORD_ROLES = os.environ.get("DISCORD_ROLES")
+    TELEGRAM_BOT_TOKEN = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    TELEGRAM_CHAT_ID = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
     COUNTRY = os.environ.get("COUNTRY") or "US"
     REFRESH_TIME = int(os.environ.get("REFRESH_TIME") or 30)
     TEST_MODE = os.environ.get("TEST_MODE", "False").lower() == "true"
@@ -47,15 +49,34 @@ if TEST_MODE:
 if not PRODUCT_NAMES:
     logging.error("❌ PRODUCT_NAMES is required but not defined.")
     sys.exit(1)
-if not DISCORD_WEBHOOK_URL:
-    logging.error("❌ DISCORD_WEBHOOK_URL is required but not defined.")
-    sys.exit(1)
+
+# Notification channels: each one is optional, but at least one must be configured
+if bool(TELEGRAM_BOT_TOKEN) != bool(TELEGRAM_CHAT_ID):
+    logging.warning(
+        "⚠️ TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must both be defined. Telegram is disabled."
+    )
+    TELEGRAM_BOT_TOKEN = TELEGRAM_CHAT_ID = ""
+
+DISCORD_ENABLED = bool(DISCORD_WEBHOOK_URL)
+TELEGRAM_ENABLED = bool(TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID)
+
+if not DISCORD_ENABLED:
+    logging.warning("⚠️ DISCORD IS NOT CONFIGURED: no Discord notification will be sent.")
+if not TELEGRAM_ENABLED:
+    logging.warning("⚠️ TELEGRAM IS NOT CONFIGURED: no Telegram notification will be sent.")
+if not DISCORD_ENABLED and not TELEGRAM_ENABLED:
+    logging.warning(
+        "🚨 NO NOTIFICATION CHANNEL CONFIGURED: the bot will run but will not alert you! "
+        "Define DISCORD_WEBHOOK_URL and/or TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID."
+    )
 
 PRODUCT_NAMES = [name.strip() for name in PRODUCT_NAMES.split(",")]
 
 # Role mapping
 DISCORD_ROLE_MAP = {}
-if not DISCORD_ROLES or not DISCORD_ROLES.strip():
+if not DISCORD_ENABLED:
+    pass
+elif not DISCORD_ROLES or not DISCORD_ROLES.strip():
     logging.warning("⚠️ DISCORD_ROLES not defined or empty. Defaulting all roles to @everyone.")
     for name in PRODUCT_NAMES:
         DISCORD_ROLE_MAP[name] = "@everyone"
@@ -72,7 +93,9 @@ else:
 
 # Masked webhook in terminal
 match = re.search(r"/(\d+)/(.*)", DISCORD_WEBHOOK_URL)
-if match:
+if not DISCORD_ENABLED:
+    wh_masked_url = "[Disabled]"
+elif match:
     webhook_id = match.group(1)
     webhook_token = match.group(2)
     masked_webhook_id = webhook_id[: len(webhook_id) - 10] + "*" * 10
@@ -198,6 +221,10 @@ imminent_drop = loc["imminent_drop"]
 logging.info(f"GPU: {PRODUCT_NAMES}")
 logging.info(f"Discord Webhook URL: {wh_masked_url}")
 logging.info(f"Discord Role Mention: {DISCORD_ROLES}")
+logging.info(
+    "Telegram: %s",
+    f"enabled (chat {TELEGRAM_CHAT_ID})" if TELEGRAM_ENABLED else "[Disabled]",
+)
 logging.info(f"API URL SKU: {API_URL_SKU}")
 logging.info(f"API URL Stock: {API_URL_STOCK}")
 logging.info(f"Product URL: {PRODUCT_URL}")

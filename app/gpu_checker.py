@@ -9,6 +9,9 @@ from notifier import (
     send_discord_notification,
     send_out_of_stock_notification,
     send_sku_change_notification,
+    send_telegram_notification,
+    send_telegram_out_of_stock_notification,
+    send_telegram_sku_change_notification,
 )
 
 # HTTP session
@@ -64,6 +67,9 @@ def check_rtx_50_founders():
         if old_sku and old_sku != product_sku and not first_run_dict[product_name]:
             logging.warning(f"⚠️ SKU changed for {product_name}: {old_sku} → {product_sku}")
             send_sku_change_notification(product_name, old_sku, product_sku, PRODUCT_URL)
+            send_telegram_sku_change_notification(
+                product_name, old_sku, product_sku, PRODUCT_URL
+            )
 
         last_sku_dict[product_name] = product_sku
         first_run_dict[product_name] = False
@@ -109,10 +115,14 @@ def check_rtx_50_founders():
 
             if currently_in_stock and not previously_in_stock:
                 send_discord_notification(product_name, PRODUCT_URL, products_price)
+                send_telegram_notification(product_name, PRODUCT_URL, products_price)
                 global_stock_status_dict[(product_name, upc_upper)] = True
                 logging.info(f"[{product_name}] {upc} is now in stock!")
             elif not currently_in_stock and previously_in_stock:
                 send_out_of_stock_notification(product_name, PRODUCT_URL, products_price)
+                send_telegram_out_of_stock_notification(
+                    product_name, PRODUCT_URL, products_price
+                )
                 global_stock_status_dict[(product_name, upc_upper)] = False
                 logging.info(f"[{product_name}] {upc} is now out of stock.")
             elif currently_in_stock:

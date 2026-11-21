@@ -4,6 +4,17 @@
   "timezone": "Europe/Paris",
   "minimumReleaseAge": "3 days",
   "labels": ["bot"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Docker images pinned in CI 'docker run' / 'docker create' commands",
+      "managerFilePatterns": ["/^\\.gitea/workflows/.+\\.ya?ml$/"],
+      "matchStrings": [
+        "(?<depName>(?:zricethezav/gitleaks|hadolint/hadolint|aquasec/trivy)):(?<currentValue>v?\\d+\\.\\d+\\.\\d+(?:-[a-z]+)?)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ],
   "vulnerabilityAlerts": {
     "addLabels": ["bug"]
   },

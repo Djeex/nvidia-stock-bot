@@ -20,6 +20,10 @@
   },
   "packageRules": [
     {
+      "matchManagers": ["custom.regex"],
+      "pinDigests": false
+    },
+    {
       "matchManagers": ["pip_requirements"],
       "minimumReleaseAge": "7 days"
     },

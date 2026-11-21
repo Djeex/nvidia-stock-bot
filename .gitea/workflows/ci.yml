@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 6 * * 1"
+    # Saturday 05:00 UTC: 06:00 in Paris in winter, 07:00 in summer (Gitea runs cron in UTC).
+    - cron: "0 5 * * 6"
 
 jobs:
   build-and-scan:

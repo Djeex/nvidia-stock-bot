@@ -1,12 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": ["config:recommended", "docker:pinDigests"],
   "timezone": "Europe/Paris",
+  "minimumReleaseAge": "3 days",
   "labels": ["bot"],
   "vulnerabilityAlerts": {
     "addLabels": ["bug"]
   },
   "packageRules": [
+    {
+      "matchManagers": ["pip_requirements"],
+      "minimumReleaseAge": "7 days"
+    },
     {
       "matchManagers": ["pip_requirements"],
       "matchUpdateTypes": ["patch", "minor"],
@@ -15,6 +20,11 @@
     {
       "matchManagers": ["dockerfile"],
       "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchUpdateTypes": ["pin", "digest"],
       "automerge": true
     },
     {

@@ -19,20 +19,20 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Get shared actions
+        uses: actions/checkout@v7
+        with:
+          repository: labeex/cicdeex
+          ref: 1.1.0
+          token: ${{ secrets.CICDEEX_TOKEN }}
+          path: .cicdeex
+          persist-credentials: false
+
       - name: Scan for secrets
-        run: |
-          # docker cp, not a build COPY: a repo's own .dockerignore (e.g. one that
-          # excludes .git for prod builds) would otherwise silently give an empty,
-          # falsely-clean scan.
-          CID=$(docker create zricethezav/gitleaks:v8.30.1 detect --source=/repo --no-banner -v)
-          docker cp . "$CID:/repo"
-          docker start -a "$CID"
-          STATUS=$?
-          docker rm "$CID" > /dev/null
-          exit $STATUS
+        uses: ./.cicdeex/secret-scan
 
       - name: Lint Dockerfile with hadolint
-        run: docker run --rm -i hadolint/hadolint:v2.15.1-alpine hadolint --failure-threshold error - < Dockerfile
+        uses: ./.cicdeex/hadolint
 
       - name: Build Docker image
         run: |
@@ -81,210 +81,38 @@ jobs:
       - name: Scan with Trivy (critical - blocking)
         id: trivy_critical
         continue-on-error: true
-        run: |
-          docker run --rm \
-            -e DOCKER_HOST=tcp://dockerhost:2375 \
-            --add-host=dockerhost:host-gateway \
-            aquasec/trivy:0.76.2 image --exit-code 1 --severity CRITICAL nvidia-stock-bot:ci
+        uses: ./.cicdeex/trivy
+        with:
+          image: nvidia-stock-bot:ci
 
       - name: Handle CRITICAL findings
         if: steps.trivy_critical.outcome == 'failure'
-        run: |
-          if [ "${{ github.event_name }}" != "schedule" ]; then
-            echo "::error::CRITICAL vulnerabilities found, failing the build."
-            exit 1
-          fi
-
-          echo "Scheduled scan found CRITICAL vulnerabilities — attempting an automatic apk upgrade + rescan."
-
-          sed -i '/^FROM .* AS base$/a RUN apk upgrade --no-cache' Dockerfile
-          docker build -t nvidia-stock-bot:remediated .
-
-          if docker run --rm \
-            -e DOCKER_HOST=tcp://dockerhost:2375 \
-            --add-host=dockerhost:host-gateway \
-            aquasec/trivy:0.76.2 image --exit-code 1 --severity CRITICAL nvidia-stock-bot:remediated; then
-            echo "apk upgrade clears the CRITICAL finding(s) — opening a PR for review."
-
-            BRANCH="auto/cve-fix-$(date +%Y%m%d)-$(echo "${{ github.sha }}" | cut -c1-7)"
-            git config user.name "nvidia-stock-bot-ci"
-            git config user.email "ci@git.djeex.fr"
-            git checkout -b "$BRANCH"
-            git add Dockerfile
-            git commit -m "Auto-remediate CRITICAL CVE via apk upgrade"
-            git config --unset-all http.https://git.djeex.fr/.extraheader || true
-            git push "https://Djeex:${{ secrets.CI_PUSH_TOKEN }}@git.djeex.fr/Djeex/nvidia-stock-bot.git" "HEAD:$BRANCH"
-
-            PR_JSON=$(curl -s -X POST \
-              -H "Authorization: token ${{ secrets.CI_PUSH_TOKEN }}" \
-              -H "Content-Type: application/json" \
-              -d "$(jq -n --arg head "$BRANCH" '{title: "🔒 Auto: remediate CRITICAL CVE via apk upgrade", head: $head, base: "main", body: "Opened automatically by the scheduled CVE scan. An `apk upgrade --no-cache` cleared the CRITICAL Trivy finding(s) in a rebuild — review the diff and merge to publish the fix."}')" \
-              "https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot/pulls")
-            echo "PR API response: $(echo "$PR_JSON" | jq -r '.html_url // .message // "unknown"')"
-          else
-            echo "::error::apk upgrade does not clear the CRITICAL finding(s) — no automatic fix available, needs manual review."
-            exit 1
-          fi
+        uses: ./.cicdeex/remediate
+        with:
+          push-token: ${{ secrets.CI_PUSH_TOKEN }}
 
       - name: Scan with Trivy (high - informative)
-        run: |
-          docker run --rm \
-            -e DOCKER_HOST=tcp://dockerhost:2375 \
-            --add-host=dockerhost:host-gateway \
-            aquasec/trivy:0.76.2 image --exit-code 0 --severity HIGH nvidia-stock-bot:ci
+        uses: ./.cicdeex/trivy
+        with:
+          image: nvidia-stock-bot:ci
+          severity: HIGH
+          exit-code: "0"
 
       - name: Publish tagged image
+        id: publish
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          BEFORE="${{ github.event.before }}"
-          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
-            BASE_REF="$BEFORE"
-          else
-            BASE_REF="HEAD~1"
-          fi
-          CHANGED=$(git diff --name-only "$BASE_REF" "${{ github.sha }}")
-          echo "Changed files:"
-          echo "$CHANGED"
+        uses: ./.cicdeex/publish
+        with:
+          image: nvidia-stock-bot:ci
+          paths: '^(Dockerfile|VERSION)$|^app/'
+          push-token: ${{ secrets.CI_PUSH_TOKEN }}
+          registry-token: ${{ secrets.REGISTRY_TOKEN }}
+          github-mirror: "true"
+          github-token: ${{ secrets.GH_TOKEN }}
 
-          if ! echo "$CHANGED" | grep -qE '^(Dockerfile|VERSION)$|^app/'; then
-            echo "No container-relevant file changed, skipping publish."
-            exit 0
-          fi
-
-          if echo "$CHANGED" | grep -qE '^VERSION$'; then
-            echo "VERSION was manually edited in this push, using it as-is."
-          else
-            echo "VERSION untouched but container files changed, auto-bumping the build number (Z)."
-            OLD_VERSION=$(tr -d '[:space:]' < VERSION)
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
-            NEW_VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
-            echo "$NEW_VERSION" > VERSION
-
-            git config user.name "nvidia-stock-bot-ci"
-            git config user.email "ci@git.djeex.fr"
-            git add VERSION
-            git commit -m "Bump build version to $NEW_VERSION [skip ci]"
-
-            # Belt and suspenders: actions/checkout can leave its own ephemeral
-            # credential injected as an extraheader, which would silently override
-            # the URL-embedded token below. persist-credentials:false on checkout
-            # should already prevent this, but strip it here too just in case.
-            git config --unset-all http.https://git.djeex.fr/.extraheader || true
-
-            git push "https://Djeex:${{ secrets.CI_PUSH_TOKEN }}@git.djeex.fr/Djeex/nvidia-stock-bot.git" HEAD:main
-          fi
-
-          VERSION=$(tr -d '[:space:]' < VERSION)
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-          MINOR_TAG="${MAJOR}.${MINOR}"
-
-          IMAGE=git.djeex.fr/djeex/nvidia-stock-bot
-          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login git.djeex.fr -u Djeex --password-stdin
-
-          # Retag the already-built, already-scanned image — never rebuild for publish,
-          # so what ships is byte-for-byte what Trivy just scanned.
-          docker tag nvidia-stock-bot:ci "$IMAGE:latest"
-          docker tag nvidia-stock-bot:ci "$IMAGE:$MINOR_TAG"
-          docker tag nvidia-stock-bot:ci "$IMAGE:$VERSION"
-          docker push "$IMAGE:latest"
-          docker push "$IMAGE:$MINOR_TAG"
-          docker push "$IMAGE:$VERSION"
-
-          GHCR_IMAGE=ghcr.io/djeex/nvidia-stock-bot
-          echo "${{ secrets.GH_TOKEN }}" | docker login ghcr.io -u Djeex --password-stdin
-
-          docker tag nvidia-stock-bot:ci "$GHCR_IMAGE:latest"
-          docker tag nvidia-stock-bot:ci "$GHCR_IMAGE:$MINOR_TAG"
-          docker tag nvidia-stock-bot:ci "$GHCR_IMAGE:$VERSION"
-          docker push "$GHCR_IMAGE:latest"
-          docker push "$GHCR_IMAGE:$MINOR_TAG"
-          docker push "$GHCR_IMAGE:$VERSION"
-
-          TRIGGER_MSG=$(git log -1 --format=%s "${{ github.sha }}")
-          PR_NUM=$(echo "$TRIGGER_MSG" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)
-
-          CATEGORY="🔧 Maintenance"
-          CHANGE_TITLE="$TRIGGER_MSG"
-
-          if [ -n "$PR_NUM" ]; then
-            PR_JSON=$(curl -s -H "Authorization: token ${{ secrets.CI_PUSH_TOKEN }}" \
-              "https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot/pulls/$PR_NUM")
-            PR_TITLE=$(echo "$PR_JSON" | jq -r '.title // empty' 2>/dev/null || true)
-            LABELS=$(echo "$PR_JSON" | jq -r '.labels[]?.name' 2>/dev/null || true)
-
-            if [ -n "$PR_TITLE" ]; then
-              CHANGE_TITLE="$PR_TITLE"
-            fi
-
-            if echo "$LABELS" | grep -qx 'bug'; then
-              CATEGORY="⚠️ Hotfix"
-            elif echo "$LABELS" | grep -qx 'major'; then
-              CATEGORY="💥 Breaking change"
-            elif echo "$LABELS" | grep -qx 'minor'; then
-              CATEGORY="✨ Update"
-            fi
-          fi
-
-          REPO_URL="https://git.djeex.fr/Djeex/nvidia-stock-bot"
-          COMMIT_LIST=$(git log --no-merges --format="- %s ([%h](${REPO_URL}/commit/%H))" "$BASE_REF".."${{ github.sha }}")
-
-          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-          SOURCE_LINE="[${SHORT_SHA}](${REPO_URL}/commit/${{ github.sha }})"
-          if [ -n "$PR_NUM" ]; then
-            SOURCE_LINE="[#${PR_NUM}](${REPO_URL}/pulls/${PR_NUM}) · ${SOURCE_LINE}"
-          fi
-
-          BODY=$(cat <<EOF
-          ## Changelog
-
-          ### ${CATEGORY}
-          ${CHANGE_TITLE}
-
-          **Source:** ${SOURCE_LINE}
-          **Image:** \`${IMAGE}:${VERSION}\`
-
-          **Commits:**
-          ${COMMIT_LIST}
-          EOF
-          )
-
-          JSON_PAYLOAD=$(jq -n \
-            --arg tag "$VERSION" \
-            --arg name "$VERSION" \
-            --arg body "$BODY" \
-            '{tag_name: $tag, name: $name, target_commitish: "main", body: $body}')
-
-          curl -s -o /dev/null -w "Release API response: %{http_code}\n" -X POST \
-            -H "Authorization: token ${{ secrets.CI_PUSH_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_PAYLOAD" \
-            "https://git.djeex.fr/api/v1/repos/Djeex/nvidia-stock-bot/releases"
-
-          MIRROR_NOTICE="_This github repo is a mirror of https://git.djeex.fr/Djeex/nvidia-stock-bot. You'll find full package, PR, history and release note there._"
-          GH_BODY=$(printf '%s\n\n%s' "$MIRROR_NOTICE" "$BODY")
-
-          GH_JSON_PAYLOAD=$(jq -n \
-            --arg tag "$VERSION" \
-            --arg name "$VERSION" \
-            --arg body "$GH_BODY" \
-            --arg sha "${{ github.sha }}" \
-            '{tag_name: $tag, name: $name, target_commitish: $sha, body: $body}')
-
-          GH_STATUS=0
-          for i in 1 2 3 4 5; do
-            GH_STATUS=$(curl -s -o /tmp/gh_release.json -w "%{http_code}" -X POST \
-              -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
-              -H "Accept: application/vnd.github+json" \
-              -H "Content-Type: application/json" \
-              -d "$GH_JSON_PAYLOAD" \
-              "https://api.github.com/repos/Djeex/nvidia-stock-bot/releases")
-            if [ "$GH_STATUS" = "201" ]; then
-              break
-            fi
-            echo "GitHub Release attempt $i failed (HTTP $GH_STATUS) — mirror may not have synced this commit yet, retrying in 15s..."
-            sleep 15
-          done
-          echo "GitHub Release API response: $GH_STATUS"
-          if [ "$GH_STATUS" != "201" ]; then
-            cat /tmp/gh_release.json 2>/dev/null || true
-          fi
+      - name: Notify failures
+        if: always()
+        uses: ./.cicdeex/notify
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ job.status }}
